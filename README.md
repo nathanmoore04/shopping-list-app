@@ -11,26 +11,27 @@ The goal is to create a dynamic, reactive, responsive web app that allows users 
 
 ## To-do
 
-1. Finalize core feature list (Integration with grocery store APIs later)
-    - Recipe Management: Allow users to create, view, edit, and save recipes. Include fields like ingredients, quantities, instructions, prep time, etc.
-    - Meal Scheduling: Provide a calendar or planner interface for users to schedule meals.
-    - Shopping List Generation: Automatically create shopping lists based on recipes and schedules, grouping ingredients by category.
-2. Investigate and choose tech stack
+1. Investigate and choose tech stack
     - UI: Vue.js, Angular, React with Bootstrap
     - Backend (recipes, meal schedules, API interactions.): Node.js, Django, Flask
     - User authentication: OAuth, Firebase
     - Database: PostgreSQL, MySQL, MongoDB
     - Hosting: AWS, Vercel, GitHub
-3. Design application
+2. Design application
     - Wireframe recipe creation/editing, schedule calendar view, shopping list displays, landing page
     - Ensure responsive layout
-4. Develop application
+3. Develop application
     - CRUD operations for recipes and schedules
     - Dynamic shopping lists
     - User authentication
-5. Testing
-6. Deploy
+4. Testing
+5. Deploy
 
 ## In progress
+
+1. Finalize core feature list (Integration with grocery store APIs later)
+    - Recipe Management: Allow users to create, view, edit, and save recipes. Include fields like ingredients, quantities, instructions, prep time, etc.
+    - Meal Scheduling: Provide a calendar or planner interface for users to schedule meals.
+    - Shopping List Generation: Automatically create shopping lists based on recipes and schedules, grouping ingredients by category.
 
 ## Completed
