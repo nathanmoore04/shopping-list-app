@@ -1,4 +1,3 @@
-const { createECDH } = require("node:crypto");
 const { createServer } = require("node:http")
 
 const hostname = "127.0.0.1";
