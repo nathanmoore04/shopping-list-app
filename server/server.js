@@ -28,6 +28,11 @@ pool.query('SELECT NOW()', (err, res) => {
 // ----- App stuff ------
 app.use(express.json());
 
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+    next();
+})
+
 // Test route, just lets you know the server is running
 app.get('/', (req, res) => {
     res.send("Service is up and running");
