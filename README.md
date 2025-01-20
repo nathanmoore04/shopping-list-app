@@ -11,21 +11,15 @@ The goal is to create a dynamic, reactive, responsive web app that allows users 
 
 ## To-do
 
-1. Investigate and choose tech stack
-    - UI: Vue.js, Angular, React with Bootstrap
-    - Backend (recipes, meal schedules, API interactions.): Node.js, Django, Flask
-    - User authentication: OAuth, Firebase
-    - Database: PostgreSQL, MySQL, MongoDB
-    - Hosting: AWS, Vercel, GitHub
-2. Design application
+1. Design frontend
     - Wireframe recipe creation/editing, schedule calendar view, shopping list displays, landing page
     - Ensure responsive layout
-3. Develop application
+2. Develop frontend
     - CRUD operations for recipes and schedules
     - Dynamic shopping lists
     - User authentication
-4. Testing
-5. Deploy
+3. Testing
+4. Deploy
 
 ## In progress
 
@@ -33,5 +27,17 @@ The goal is to create a dynamic, reactive, responsive web app that allows users 
     - Recipe Management: Allow users to create, view, edit, and save recipes. Include fields like ingredients, quantities, instructions, prep time, etc.
     - Meal Scheduling: Provide a calendar or planner interface for users to schedule meals.
     - Shopping List Generation: Automatically create shopping lists based on recipes and schedules, grouping ingredients by category.
+2. Investigate and choose tech stack
+    - User authentication: OAuth, Firebase
+    - Hosting: AWS, Vercel, GitHub
+3. Design and develop backend
+    - Ingredients, schedules, and lists tables with links to users and necessary routes/endpoints
 
 ## Completed
+
+1. Investigate and choose tech stack
+    - Frontend: Vue.js with Axios for backend connection, Bootstrap for styling
+    - Backend (recipes, meal schedules, API interactions.): Node.js, Express
+    - Database: PostgreSQL
+2. Design and develop backend
+    - Recipes table and GET, POST, PUT, DELETE endpoints
