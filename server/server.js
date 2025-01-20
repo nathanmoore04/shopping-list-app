@@ -49,6 +49,19 @@ app.get('/recipes', async (req, res) => {
     }
 });
 
+// GET a specific recipe
+app.get('/recipes/:id', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM recipes WHERE id = $1', [req.params.id]);
+
+        if (result.rows.length == 0) res.status(404).send('Recipe not found');
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
 // POST route - add a new recipe
 app.post('/recipes', async (req, res) => {
     const { name, ingredients, steps } = req.body;
@@ -81,14 +94,14 @@ app.put('/recipes/:id', (req, res) => {
 });
 
 // DELETE route - delete a recipe
-app.delete('/recipes/:id', (req, res) => {
-    const { id } = req.params;
-    const index = recipes.findIndex((r) => r.id === parseInt(id));
+app.delete('/recipes/:id', async (req, res) => {
+    try {
+        const result = await pool.query('DELETE FROM recipes WHERE id = $1 RETURNING *', [req.params.id]);
 
-    if (index == -1) res.status(404).send("Recipe not found");
-    else {
-        recipes.splice(index, 1);
-        res.status(204).send();
+        if (result.rows.length == 0) res.status(404).send('Recipe not found');
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
     }
-    
 });
