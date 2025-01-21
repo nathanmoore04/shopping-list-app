@@ -1,6 +1,7 @@
 // Imports
 const express = require('express');
 const { Pool } = require('pg');
+require('dotenv').config();
 
 // ----- Server stuff -----
 const app = express();
@@ -10,11 +11,11 @@ const SERVER_PORT = 3000;
 
 // ----- DB stuff -----
 const pool = new Pool({
-    user: 'postgres', // Default superuser
-    host: 'localhost', // Server address
-    database: 'recipes_app_test', // Database name
-    password: 'N8K9$wims', // Replace with your password
-    port: 5432, // Default PostgreSQL port
+    user: process.env.DB_USER, 
+    host: process.env.DB_HOST, 
+    database: process.env.DB_NAME, 
+    password: process.env.DB_PASSWORD, 
+    port: process.env.DB_PORT,
 });
 
 pool.query('SELECT NOW()', (err, res) => {
