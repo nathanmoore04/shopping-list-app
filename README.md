@@ -1,4 +1,4 @@
-# Recipe Shopping List Maker (working title)
+# MealPlanner (working title)
 This repository contains all project files and documentation for the recipe shopping list web app.  *Created for CSC 490: Senior Project at Berry College.*  This document represents the overall idea and to-do list for the project during the development process.
 
 ## Idea
@@ -8,6 +8,18 @@ The goal is to create a dynamic, reactive, responsive web app that allows users 
 - Query the app to create a customizable meal schedule for a specified period of time.
 - Output a customizable shopping list that corresponds to the generated meal schedule.
 - (Maybe) output this shopping list to major grocery chain apps/query grocery stores for price/availability data.
+
+## Deliverables
+
+The completed app will contain the following features:
+- Users can create and log in to accounts
+- Users can create, read, update, and delete recipes
+- Recipes have fields for name, ingredients, and instructions
+- Users can create a meal schedule for a variable time period, with the option for "off-days" or eating elsewhere, that contains the recipes that they have saved
+- Schedules are saved to users' accounts and can be reused
+- User accounts contain schedule history and recent recipes
+- Users can output a shopping list for their chosen schedule
+- Shopping lists can be edited to add or remove ingredients as needed
 
 ## To-do
 
