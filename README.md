@@ -44,6 +44,17 @@ The completed app will contain the following features:
     - Hosting: AWS, Vercel, GitHub
 3. Design and develop backend
     - Ingredients, schedules, and lists tables with links to users and necessary routes/endpoints
+4. Plan and implement user authentication
+    - Add users database table
+    - Create authentication routes on server
+    - Investigate middleware for protecting routes?
+    - JSON web tokens
+    - Frontend integration
+        - POST requests to backend routes
+        - Return JWT to client
+        - Store JWT in LocalStorage
+        - Attach JWT to requests
+        - Handle logout
 
 ## Completed
 

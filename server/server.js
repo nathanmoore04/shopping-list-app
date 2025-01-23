@@ -2,6 +2,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 require('dotenv').config();
+const bcrypt = require('bcryptjs'); 
 
 // ----- Server stuff -----
 const app = express();
@@ -29,10 +30,44 @@ pool.query('SELECT NOW()', (err, res) => {
 // ----- App stuff ------
 app.use(express.json());
 
+// Set CORS header
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     next();
 })
+
+// ----- USER AUTHENTICATION -----
+app.post('/signup', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email) {
+        req.status(400).send("Email address is required");
+    } else if (!password) {
+        req.status(400).send("Password is required");
+    }
+
+    try {
+
+        const existingUsers = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (existingUsers.rows.length > 0) {
+            res.status(400).send("Email already in use");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = await pool.query(
+            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email", 
+            [email, hashedPassword]
+        );
+
+        res.status(201).json(newUser.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error");
+    }
+});
+
+// ----- ROUTES -----
 
 // Test route, just lets you know the server is running
 app.get('/', (req, res) => {
