@@ -3,11 +3,12 @@ const express = require('express');
 const { Pool } = require('pg');
 require('dotenv').config();
 const bcrypt = require('bcryptjs'); 
+const jwt = require('jsonwebtoken');
 
 // ----- Server stuff -----
 const app = express();
 
-const hostname = '127.0.0.1';
+const HOSTNAME = '127.0.0.1';
 const SERVER_PORT = 3000;
 
 // ----- DB stuff -----
@@ -34,7 +35,12 @@ app.use(express.json());
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     next();
-})
+});
+
+// Start server
+app.listen(SERVER_PORT, HOSTNAME, () => {
+    console.log(`Server running at http://${HOSTNAME}:${SERVER_PORT}`);
+});
 
 // ----- USER AUTHENTICATION -----
 app.post('/signup', async (req, res) => {
@@ -67,6 +73,60 @@ app.post('/signup', async (req, res) => {
     }
 });
 
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    // Ensure all fields are present
+    if (!email) {
+        res.status(400).send('Email is required');
+    } else if (!password) {
+        res.status(400).send('Password is required');
+    }
+
+    try {
+
+        // Get user from database
+        const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (user.rows.length === 0) {
+            res.status(400).send('Invalid email or password');
+        }
+
+        // Validate password
+        const validPassword = await bcrypt.compare(password, user.rows[0].password);
+        if (!validPassword) {
+            res.status(400).send('Invalid email or password');
+        }
+
+        // Generate JWT
+        const token = jwt.sign({ userId: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' })
+
+        res.status(200).json(token);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+// Middleware to authenticate a JWT token from the client
+const authenticateToken = (req, res, next) => {
+    // Get the token from the request header
+    const token = req.headers['authorization']?.split(' ')[1];
+
+    if (!token) {
+        res.status(401).send('Access denied');
+    }
+
+    try {
+
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = verified;
+        next();
+
+    } catch (err) {
+        res.status(403).send('Invalid token');
+    }
+};
+
 // ----- ROUTES -----
 
 // Test route, just lets you know the server is running
@@ -74,16 +134,11 @@ app.get('/', (req, res) => {
     res.send("Service is up and running");
 });
 
-app.listen(SERVER_PORT, hostname, () => {
-    console.log(`Server running at http://${hostname}:${SERVER_PORT}`);
-});
-
-// ----- Recipes endpoint -----
-// GET route - list all recipes
-app.get('/recipes', async (req, res) => {
+// GET route - list all of a user's recipes
+app.get('/recipes', authenticateToken, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM recipes');
-        res.json(result.rows);
+        const result = await pool.query('SELECT * FROM recipes WHERE user_id = $1', [req.user.userId]);
+        res.status(200).json(result.rows);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
