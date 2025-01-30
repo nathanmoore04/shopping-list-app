@@ -85,13 +85,13 @@ app.post('/login', async (req, res) => {
         // Get user from database
         const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (user.rows.length === 0) {
-            res.status(400).send('Invalid email or password');
+            return res.status(400).send('Invalid email or password');
         }
 
         // Validate password
         const validPassword = await bcrypt.compare(password, user.rows[0].password);
         if (!validPassword) {
-            res.status(400).send('Invalid email or password');
+            return res.status(400).send('Invalid email or password');
         }
 
         // Generate JWT
@@ -147,7 +147,7 @@ app.get('/recipes/:id', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM recipes WHERE id = $1', [req.params.id]);
 
-        if (result.rows.length == 0) res.status(404).send('Recipe not found');
+        if (result.rows.length == 0) return res.status(404).send('Recipe not found');
         res.json(result.rows[0]);
     } catch (err) {
         console.error(err.message);
@@ -191,7 +191,7 @@ app.delete('/recipes/:id', async (req, res) => {
     try {
         const result = await pool.query('DELETE FROM recipes WHERE id = $1 RETURNING *', [req.params.id]);
 
-        if (result.rows.length == 0) res.status(404).send('Recipe not found');
+        if (result.rows.length == 0) return res.status(404).send('Recipe not found');
         res.json(result.rows[0]);
     } catch (err) {
         console.error(err.message);
