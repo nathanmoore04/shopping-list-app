@@ -1,3 +1,6 @@
+# HTTP test files
+*.http
+
 # Logs
 logs
 *.log
