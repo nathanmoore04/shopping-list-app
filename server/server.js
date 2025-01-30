@@ -110,8 +110,7 @@ const authenticateToken = (req, res, next) => {
     const token = req.headers['Authorization']?.split(' ')[1];
 
     if (!token) {
-        res.status(401).send('Access denied');
-        return;
+        return res.status(401).send('Access denied');
     }
 
     try {
