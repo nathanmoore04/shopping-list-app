@@ -24,6 +24,7 @@ const handleLogin = async (userData) => {
 <template>
     <div class="container-lg mt-5 w-50">
         <LoginForm @login="handleLogin" />
+        <p v-if="message">{{ message }}</p>
     </div>
 </template>
 
