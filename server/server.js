@@ -107,7 +107,7 @@ app.post('/login', async (req, res) => {
 // Middleware to authenticate a JWT token from the client
 const authenticateToken = (req, res, next) => {
     // Get the token from the request header
-    const token = req.headers['Authorization']?.split(' ')[1];
+    const token = req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
         return res.status(401).send('Access denied');
@@ -125,6 +125,14 @@ const authenticateToken = (req, res, next) => {
 };
 
 // ----- ROUTES -----
+// Route for checking if a user token is valid, used in protecting frontend routes
+app.get('/auth', authenticateToken, (req, res) => {
+    try {
+        res.status(200).send('User authenticated');
+    } catch (err) {
+        res.status(500).send('Server error');
+    }
+});
 
 // Test route, just lets you know the server is running
 app.get('/', (req, res) => {

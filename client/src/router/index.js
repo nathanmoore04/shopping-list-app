@@ -1,8 +1,10 @@
 import { createWebHistory, createRouter } from 'vue-router';
-import HomePage from '../vue/HomePage.vue';
-import LoginPage from '../vue/LoginPage.vue';
-import SignupPage from '../vue/SignupPage.vue';
-import DashboardPage from '../vue/DashboardPage.vue';
+import HomePage from '@/vue/HomePage.vue';
+import LoginPage from '@/vue/LoginPage.vue';
+import SignupPage from '@/vue/SignupPage.vue';
+import DashboardPage from '@/vue/DashboardPage.vue';
+import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
 // Map Vue components to URLs
 const routes = [
@@ -20,6 +22,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+// Navigation guard to protect routes
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
+  const isAuthenticated = authStore.isAuthenticated;
+
+  if (to.meta.requiresAuth && !isAuthenticated) next('/login');
+  else next();
 });
 
 export default router;
