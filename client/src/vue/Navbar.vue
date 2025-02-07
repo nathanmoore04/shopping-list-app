@@ -1,6 +1,7 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+import DarkModeSwitch from '@/vue/DarkModeSwitch.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -21,6 +22,7 @@ const handleLogout = () => {
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
+          <li class="nav-item mx-1 pt-2"><DarkModeSwitch /></li>
           <li class="nav-item mx-1">
             <RouterLink v-if="authStore.isAuthenticated" to="/dashboard" class="nav-link">Dashboard</RouterLink>
           </li>

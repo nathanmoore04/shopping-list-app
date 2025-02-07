@@ -6,7 +6,7 @@ import Footer from './Footer.vue';
 <template>
     <Navbar />
     <div class="container">
-        <h1 class="fw-bold">Dashboard</h1>
+        <h1 class="fw-bold mt-2">Dashboard</h1>
 
         <div class="row mt-2">
             <div class="col-8">
@@ -19,7 +19,7 @@ import Footer from './Footer.vue';
 
         <div class="row align-items-start mt-2">
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <img src="../assets/placeholder.svg" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Meal title</h5>
@@ -34,7 +34,7 @@ import Footer from './Footer.vue';
                 </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <img src="../assets/placeholder.svg" class="card-img-top">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Meal title</h5>
@@ -49,7 +49,7 @@ import Footer from './Footer.vue';
                 </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <img src="../assets/placeholder.svg" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Meal title</h5>
@@ -64,7 +64,7 @@ import Footer from './Footer.vue';
                 </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <img src="../assets/placeholder.svg" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Meal title</h5>
@@ -91,7 +91,7 @@ import Footer from './Footer.vue';
 
         <div class="row align-items-start mt-2">
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Plan title</h5>
                         <p class="card-text text-body-secondary fw-light">[num] meals &#8226; Last used MM/DD/YY</p>
@@ -109,7 +109,7 @@ import Footer from './Footer.vue';
                 </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Plan title</h5>
                         <p class="card-text text-body-secondary fw-light">[num] meals &#8226; Last used MM/DD/YY</p>
@@ -127,7 +127,7 @@ import Footer from './Footer.vue';
                 </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Plan title</h5>
                         <p class="card-text text-body-secondary fw-light">[num] meals &#8226; Last used MM/DD/YY</p>
@@ -145,7 +145,7 @@ import Footer from './Footer.vue';
                 </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <div class="card bg-light" style="width: 18rem;">
+                <div class="card" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title fw-semibold">Plan title</h5>
                         <p class="card-text text-body-secondary fw-light">[num] meals &#8226; Last used MM/DD/YY</p>
