@@ -3,9 +3,13 @@
 </script>
 
 <template>
-  <RouterView />
+  <div class="app">
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
-
+.app {
+  transition: all 0.3s;
+}
 </style>

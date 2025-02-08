@@ -6,14 +6,24 @@ import Footer from './Footer.vue';
 <template>
     <Navbar />
     <div class="container">
-        <h1 class="fw-bold mt-2">Dashboard</h1>
+        <div class="row mt-2 justify-content-between">
+            <div class="col-3">
+                <h1 class="fw-bold">Dashboard</h1>
+            </div>
+            <div class="col-4">
+                <form class="d-flex pt-2" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search by keyword or #tags..." aria-label="Search">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+        </div>
 
         <div class="row mt-2">
             <div class="col-8">
                 <h3 class="fw-bold">Your recent meals</h3>
             </div>
             <div class="col">
-                <a href="#" class="btn btn-outline-primary float-end">See all meals</a>
+                <a href="#" class="btn btn-outline-primary float-end">See all meals <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
 
@@ -85,7 +95,7 @@ import Footer from './Footer.vue';
                 <h3 class="fw-bold">Your recent plans</h3>
             </div>
             <div class="col">
-                <a href="#" class="btn btn-outline-primary float-end">See all plans</a>
+                <a href="#" class="btn btn-outline-primary float-end">See all plans <i class="bi bi-arrow-right"></i></a>
             </div>
         </div>
 

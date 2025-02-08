@@ -3,6 +3,7 @@ import HomePage from '@/vue/HomePage.vue';
 import LoginPage from '@/vue/LoginPage.vue';
 import SignupPage from '@/vue/SignupPage.vue';
 import DashboardPage from '@/vue/DashboardPage.vue';
+import CreateMealPage from '@/vue/CreateMealPage.vue';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
@@ -15,6 +16,11 @@ const routes = [
     path: '/dashboard', 
     component: DashboardPage,
     // Protected route
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/meals/create',
+    component: CreateMealPage,
     meta: { requiresAuth: true }
   },
 ];
