@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
 
 const mealName = ref('');
 const newTag = ref('');
@@ -12,6 +13,11 @@ const newIngredient = ref({
     unit: ''
 });
 const steps = ref('');
+const imageFile = ref(null);
+const imagePreview = ref(null);
+const fileInput = ref(null);
+
+
 
 const addTag = () => {
     if (newTag.value.trim() && !tags.value.includes(newTag.value.trim())) {
@@ -44,26 +50,48 @@ const removeIngredient = (index) => {
     ingredients.value.splice(index, 1);
 }
 
+const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        imageFile.value = file;
+        imagePreview.value = URL.createObjectURL(file); // Preview the image
+    }
+}
+
+const removeImage = () => {
+    imageFile.value = null;
+    imagePreview.value = null;
+
+    if (fileInput.value) fileInput.value.value = '';
+};
+
 const submitMeal = () => {
+    // Form validation
     errorMessage.value = [];
-    if (!mealName.value) errorMessage.value.push('Meal name is required.'); 
-    
+    if (!mealName.value) errorMessage.value.push('Meal name is required.');
+
     if (ingredients.value.length === 0) errorMessage.value.push('Meal requires at least 1 ingredient.');
-    
+
     if (!steps.value) errorMessage.value.push('Steps can\'t be empty.');
 
-    if (errorMessage.value) {
-        console.log(errorMessage.value);
+    if (errorMessage.value.length !== 0) {
         return;
     }
 
-    const mealData = {
-        name: mealName.value,
-        tags: tags.value,
-        ingredients: ingredients.value
-    }
+    // Construct form data object to be sent to server
+    const formData = new FormData();
 
-    console.log('New meal:', mealData);
+    formData.append("name", mealName.value);
+    formData.append("tags", JSON.stringify(tags.value));
+    formData.append("ingredients", JSON.stringify(ingredients.value));
+
+    if (imageFile) formData.append("image", imageFile.value);
+
+    formData.append("steps", steps.value);
+
+    // Send form data to server
+
+    console.log('New meal:', formData);
 }
 </script>
 
@@ -78,14 +106,18 @@ const submitMeal = () => {
                         <input type="text" class="form-control" id="title" v-model="mealName" placeholder="Meal title">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Upload Image<span class="fw-light"> (optional)</span></label>
-                        <input type="file" class="form-control" @change="handleImageUpload" accept="image/*" />
-                        <div v-if="imagePreview" class="mt-2">
-                            <img :src="imagePreview" class="img-fluid rounded" style="max-height: 200px;" />
+                        <label class="form-label fw-semibold">Upload Image<span class="fw-light">
+                                (optional)</span></label>
+                        <input ref="fileInput" type="file" class="form-control" @change="handleImageUpload" accept="image/*">
+                        <div v-if="imagePreview" class="row mt-2 d-flex justify-content-start align-items-center">
+                            <div class="col-4"><img :src="imagePreview" class="img-fluid rounded" style="max-height: 200px;"></div>
+                            <div @click="removeImage" class="col" style="cursor: pointer;"><i
+                                class="bi bi-x text-danger"></i></div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="tags" class="form-label my-0 fw-semibold">Tags<span class="fw-light"> (optional)</span></label>
+                        <label for="tags" class="form-label my-0 fw-semibold">Tags<span class="fw-light">
+                                (optional)</span></label>
                         <div class="form-text mb-1">Add tags to better organize your meals and find them easily.</div>
                         <div class="d-flex input-group">
                             <input type="text" class="form-control" v-model="newTag" @keyup.enter="addTag"
@@ -134,8 +166,8 @@ const submitMeal = () => {
                     </div>
                     <div class="mb-1">
                         <label for="steps" class="form-label fw-semibold my-0">Steps</label>
-                        <div class="form-text mb-1">Describe how to make your dish. You can use markdown for better formatting.</div>
-                        <textarea class="form-control"></textarea>
+                        <div class="form-text mb-1">Describe how to make your dish.</div>
+                        <textarea class="form-control" v-model="steps"></textarea>
                     </div>
                     <p v-for="(message) in errorMessage" class="text-danger my-0">{{ message }}</p>
                     <button type="submit" class="btn btn-success w-100 mt-2">Save Meal</button>
