@@ -1,13 +1,15 @@
+MealPlanner
+
 A recipe managing webapp, where users can share, save, keep track of your recipe/diet
 
 Many things seem to already been figured out or already listed. Here are some additions
 
 Milestone 1:
 Wireframe frontend
-- Hero page, login/signup forms, navbar(s), login landing page, account page, recipe
+- (halfway) Hero page, login/signup forms, navbar(s), login landing page, account page, recipe
 creation and edit page, plan creation and edit page
 - which page does the user view a schedule, or view a recipe? (I think you somewhat answered this, just want to be clear)
-Develop and test essential frontend components
+(halfway) Develop and test essential frontend components
 A sample project with a hard-coded meal plan and a recipe. Placeholder for later replacement
 
 Milestone 2:
