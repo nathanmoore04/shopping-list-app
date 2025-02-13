@@ -1,6 +1,10 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const mealName = ref('');
 const newTag = ref('');
@@ -16,8 +20,6 @@ const steps = ref('');
 const imageFile = ref(null);
 const imagePreview = ref(null);
 const fileInput = ref(null);
-
-
 
 const addTag = () => {
     if (newTag.value.trim() && !tags.value.includes(newTag.value.trim())) {
@@ -65,7 +67,7 @@ const removeImage = () => {
     if (fileInput.value) fileInput.value.value = '';
 };
 
-const submitMeal = () => {
+const submitMeal = async () => {
     // Form validation
     errorMessage.value = [];
     if (!mealName.value) errorMessage.value.push('Meal name is required.');
@@ -74,9 +76,7 @@ const submitMeal = () => {
 
     if (!steps.value) errorMessage.value.push('Steps can\'t be empty.');
 
-    if (errorMessage.value.length !== 0) {
-        return;
-    }
+    if (errorMessage.value.length !== 0) return;
 
     // Construct form data object to be sent to server
     const formData = new FormData();
@@ -90,8 +90,30 @@ const submitMeal = () => {
     formData.append("steps", steps.value);
 
     // Send form data to server
+    const authStore = useAuthStore();
+    const token = authStore.token;
 
-    console.log('New meal:', formData);
+    // Log contents
+    for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+    }
+
+    try {
+        const response = await axios.post('http://127.0.0.1:3000/recipes', formData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            withCredentials: true
+        });
+
+        console.log(response.data);
+
+        const mealId = response.data.id;
+
+        router.push(`/meals/${mealId}`);
+    } catch (err) {
+        errorMessage.value.push('Error adding meal. Please try again.');
+    }
 }
 </script>
 
@@ -105,16 +127,18 @@ const submitMeal = () => {
                         <label for="title" class="form-label fw-semibold">Meal title</label>
                         <input type="text" class="form-control" id="title" v-model="mealName" placeholder="Meal title">
                     </div>
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label class="form-label fw-semibold">Upload Image<span class="fw-light">
                                 (optional)</span></label>
-                        <input ref="fileInput" type="file" class="form-control" @change="handleImageUpload" accept="image/*">
+                        <input ref="fileInput" type="file" class="form-control" @change="handleImageUpload"
+                            accept="image/*">
                         <div v-if="imagePreview" class="row mt-2 d-flex justify-content-start align-items-center">
-                            <div class="col-4"><img :src="imagePreview" class="img-fluid rounded" style="max-height: 200px;"></div>
+                            <div class="col-4"><img :src="imagePreview" class="img-fluid rounded"
+                                    style="max-height: 200px;"></div>
                             <div @click="removeImage" class="col" style="cursor: pointer;"><i
-                                class="bi bi-x text-danger"></i></div>
+                                    class="bi bi-x text-danger"></i></div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="mb-3">
                         <label for="tags" class="form-label my-0 fw-semibold">Tags<span class="fw-light">
                                 (optional)</span></label>

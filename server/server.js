@@ -5,12 +5,15 @@ require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const multer = require('multer');
 
 // ----- Server stuff -----
 const app = express();
 
 const HOSTNAME = '127.0.0.1';
 const SERVER_PORT = 3000;
+
+const upload = multer();
 
 // ----- DB stuff -----
 const pool = new Pool({
@@ -30,14 +33,15 @@ pool.query('SELECT NOW()', (err, res) => {
 });
 
 // ----- App stuff ------
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:8080', // Allow frontend domain
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
 
 app.use(express.json());
-
-// Start server
-app.listen(SERVER_PORT, HOSTNAME, () => {
-    console.log(`Server running at http://${HOSTNAME}:${SERVER_PORT}`);
-});
+app.use(express.urlencoded({ extended: true }));
 
 // ----- USER AUTHENTICATION -----
 app.post('/signup', async (req, res) => {
@@ -97,7 +101,11 @@ app.post('/login', async (req, res) => {
         // Generate JWT
         const token = jwt.sign({ userId: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' })
 
-        res.status(200).json(token);
+        res.status(200).json({
+            token: token,
+            email: email
+        });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -120,6 +128,7 @@ const authenticateToken = (req, res, next) => {
         next();
 
     } catch (err) {
+        console.error(err.message);
         res.status(403).send('Invalid token');
     }
 };
@@ -156,22 +165,50 @@ app.get('/recipes/:id', async (req, res) => {
         const result = await pool.query('SELECT * FROM recipes WHERE id = $1', [req.params.id]);
 
         if (result.rows.length == 0) return res.status(404).send('Recipe not found');
-        res.json(result.rows[0]);
+
+        const meal = result.rows[0];
+
+        // Convert PostgreSQL array string to actual JSON arrays
+        //meal.ingredients = JSON.parse(meal.ingredients); // Fix here!
+
+        res.status(200).json(meal);
     } catch (err) {
-        console.error(err.message);
+        console.error(err.stack);
         res.status(500).send('Server error');
     }
 });
 
 // POST route - add a new recipe
-app.post('/recipes', async (req, res) => {
-    const { name, ingredients, steps } = req.body;
+app.post('/recipes', authenticateToken, upload.none(), async (req, res) => {
+    //console.log(req.body);
+    
+    const { name, tags, ingredients, image, steps } = req.body;
+    const userId = req.user.userId;
+
+    if (!name || !ingredients || !steps) return res.status(400).send('Missing required fields');
+
+    const formattedTags = JSON.parse(tags);
+    const formattedIngredients = JSON.parse(ingredients);
+
+    console.log(formattedIngredients);
+
+    const pgTags = `{${formattedTags.map(tag => `"${tag}"`).join(',')}}`;
+    const pgIngredients = `{${formattedIngredients.map(ing => `"${ing}"`).join(',')}}`;
+
+    console.log(pgTags, pgIngredients);
+
     try {
         const result = await pool.query(
-            'INSERT INTO recipes (name, ingredients, steps) VALUES ($1, $2, $3) RETURNING *',
-            [name, ingredients, steps]
+            'INSERT INTO recipes (name, ingredients, steps, user_id, tags) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [name, formattedIngredients, steps, userId, pgTags]
         );
-        res.status(201).json(result.rows[0]);
+
+        const meal = result.rows[0];
+
+        // Convert PostgreSQL array string to actual JSON arrays
+        meal.ingredients = JSON.parse(meal.ingredients);
+
+        res.status(201).json(meal);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -205,4 +242,9 @@ app.delete('/recipes/:id', async (req, res) => {
         console.error(err.message);
         res.status(500).send('Server error');
     }
+});
+
+// Start server
+app.listen(SERVER_PORT, HOSTNAME, () => {
+    console.log(`Server running at http://${HOSTNAME}:${SERVER_PORT}`);
 });

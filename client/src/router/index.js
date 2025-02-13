@@ -4,6 +4,7 @@ import LoginPage from '@/vue/LoginPage.vue';
 import SignupPage from '@/vue/SignupPage.vue';
 import DashboardPage from '@/vue/DashboardPage.vue';
 import CreateMealPage from '@/vue/CreateMealPage.vue';
+import MealDetails from '@/vue/MealDetails.vue';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
@@ -23,6 +24,11 @@ const routes = [
     component: CreateMealPage,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/meals/:id',
+    component: MealDetails,
+    meta: { requiresAuth: true }
+  }
 ];
 
 const router = createRouter({
