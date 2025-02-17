@@ -1,14 +1,25 @@
 <script setup>
 import Navbar from './Navbar.vue';
 import Footer from './Footer.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 </script>
 
 <template>
     <Navbar />
+    <div class="container text-center py-5">
+        <h1 class="fw-bold">Hello, [user name]</h1>
+        <h3 class="fw-light">Message of the day</h3>
+        <div class="row justify-content-center mt-3">
+            <div class="col-3"><RouterLink class="btn btn-outline-primary btn-lg float-end" to="/meals/create">Create a new meal</RouterLink></div>
+            <div class="col-3"><RouterLink class="btn btn-primary btn-lg float-start" to="/dashboard">Create a new plan</RouterLink></div>
+        </div>
+    </div>
     <div class="container">
         <div class="row mt-2 justify-content-between">
             <div class="col-3">
-                <h1 class="fw-bold">Dashboard</h1>
+                <h3 class="fw-bold">Dashboard</h3>
             </div>
             <div class="col-4">
                 <form class="d-flex pt-2" role="search">
@@ -20,7 +31,7 @@ import Footer from './Footer.vue';
 
         <div class="row mt-2">
             <div class="col-8">
-                <h3 class="fw-bold">Your recent meals</h3>
+                <h4 class="fw-bold">Your recent meals</h4>
             </div>
             <div class="col">
                 <a href="#" class="btn btn-outline-primary float-end">See all meals <i class="bi bi-arrow-right"></i></a>
@@ -92,7 +103,7 @@ import Footer from './Footer.vue';
 
         <div class="row mt-2">
             <div class="col">
-                <h3 class="fw-bold">Your recent plans</h3>
+                <h4 class="fw-bold">Your recent plans</h4>
             </div>
             <div class="col">
                 <a href="#" class="btn btn-outline-primary float-end">See all plans <i class="bi bi-arrow-right"></i></a>

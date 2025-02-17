@@ -189,28 +189,21 @@ app.post('/recipes', authenticateToken, upload.none(), async (req, res) => {
 
     const formattedTags = JSON.parse(tags);
     const formattedIngredients = JSON.parse(ingredients);
-
-    console.log(formattedIngredients);
+    const formattedSteps = JSON.parse(steps);
 
     const pgTags = `{${formattedTags.map(tag => `"${tag}"`).join(',')}}`;
-    const pgIngredients = `{${formattedIngredients.map(ing => `"${ing}"`).join(',')}}`;
-
-    console.log(pgTags, pgIngredients);
 
     try {
         const result = await pool.query(
             'INSERT INTO recipes (name, ingredients, steps, user_id, tags) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [name, formattedIngredients, steps, userId, pgTags]
+            [name, formattedIngredients, formattedSteps, userId, pgTags]
         );
 
         const meal = result.rows[0];
 
-        // Convert PostgreSQL array string to actual JSON arrays
-        meal.ingredients = JSON.parse(meal.ingredients);
-
         res.status(201).json(meal);
     } catch (err) {
-        console.error(err.message);
+        console.error(err.stack);
         res.status(500).send('Server error');
     }
 });

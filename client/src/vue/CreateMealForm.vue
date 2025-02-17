@@ -87,7 +87,8 @@ const submitMeal = async () => {
 
     if (imageFile) formData.append("image", imageFile.value);
 
-    formData.append("steps", steps.value);
+    const stepsArray = steps.value.split('\n').map(step => step.trim())
+    formData.append("steps", JSON.stringify(stepsArray));
 
     // Send form data to server
     const authStore = useAuthStore();
@@ -122,7 +123,7 @@ const submitMeal = async () => {
         <div class="row justify-content-center">
             <div class="col-md-6 col-12">
                 <h1 class="fw-bold">Create a new meal</h1>
-                <form @submit.prevent="submitMeal" @keydown.enter.prevent>
+                <form @submit.prevent="submitMeal">
                     <div class="mb-3">
                         <label for="title" class="form-label fw-semibold">Meal title</label>
                         <input type="text" class="form-control" id="title" v-model="mealName" placeholder="Meal title">
@@ -144,7 +145,7 @@ const submitMeal = async () => {
                                 (optional)</span></label>
                         <div class="form-text mb-1">Add tags to better organize your meals and find them easily.</div>
                         <div class="d-flex input-group">
-                            <input type="text" class="form-control" v-model="newTag" @keyup.enter="addTag"
+                            <input type="text" class="form-control" v-model="newTag" @keydown.enter="addTag"
                                 placeholder="Type a tag and press Enter">
                             <button type="button" class="btn btn-primary" @click="addTag">Add</button>
                         </div>
@@ -176,7 +177,7 @@ const submitMeal = async () => {
                                 <option value="tsp">tsp</option>
                             </select>
                             <input type="text" class="form-control" v-model="newIngredient.name"
-                                placeholder="Ingredient name" @keyup.enter="addIngredient">
+                                placeholder="Ingredient name" @keydown.enter="addIngredient">
                             <button type="button" class="btn btn-primary" @click="addIngredient">Add</button>
                         </div>
                         <ul class="list-group">
@@ -190,7 +191,7 @@ const submitMeal = async () => {
                     </div>
                     <div class="mb-1">
                         <label for="steps" class="form-label fw-semibold my-0">Steps</label>
-                        <div class="form-text mb-1">Describe how to make your dish.</div>
+                        <div class="form-text mb-1">Describe how to make your dish. Put each step on a new line.</div>
                         <textarea class="form-control" v-model="steps"></textarea>
                     </div>
                     <p v-for="(message) in errorMessage" class="text-danger my-0">{{ message }}</p>
