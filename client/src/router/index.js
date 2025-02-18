@@ -5,8 +5,8 @@ import SignupPage from '@/vue/SignupPage.vue';
 import DashboardPage from '@/vue/DashboardPage.vue';
 import CreateMealPage from '@/vue/CreateMealPage.vue';
 import MealDetails from '@/vue/MealDetails.vue';
-import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
+import EditMeal from '@/vue/EditMeal.vue';
 
 // Map Vue components to URLs
 const routes = [
@@ -27,6 +27,11 @@ const routes = [
   {
     path: '/meals/:id',
     component: MealDetails,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/meals/edit/:id',
+    component: EditMeal,
     meta: { requiresAuth: true }
   }
 ];

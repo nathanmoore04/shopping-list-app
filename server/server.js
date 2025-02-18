@@ -209,28 +209,43 @@ app.post('/recipes', authenticateToken, upload.none(), async (req, res) => {
 });
 
 // PUT route - update existing recipe
-app.put('/recipes/:id', (req, res) => {
-    const { id } = req.params;
-    const { name, ingredients, steps } = req.body;
+app.put('/recipes/:id', authenticateToken, upload.none(), async (req, res) => {
+    const mealId = req.params.id;
+    const { name, tags, ingredients, image, steps } = req.body;
+    const userId = req.user.userId;
 
-    const recipe = recipes.find((r) => r.id === parseInt(id));
-    if (!recipe) {
-        res.status(404).send("Recipe not found");   
-    } else {
-        recipe.name = name || recipe.name;
-        recipe.ingredients = ingredients || recipe.ingredients;
-        recipe.steps = steps || recipe.steps;
-        res.json(recipe);
+    if (!name || !ingredients || !steps) return res.status(400).send('Missing required fields');
+
+    const formattedTags = JSON.parse(tags);
+    const formattedIngredients = JSON.parse(ingredients);
+    const formattedSteps = JSON.parse(steps);
+
+    const pgTags = `{${formattedTags.map(tag => `"${tag}"`).join(',')}}`;
+
+    try {
+        const result = await pool.query(
+            'UPDATE recipes SET name = $1, ingredients = $2, steps = $3, tags = $5 WHERE id = $6 AND user_id = $4 RETURNING *',
+            [name, formattedIngredients, formattedSteps, userId, pgTags, mealId]
+        );
+
+        if (result.rowCount === 0) return res.status(404).send('Meal not found');
+
+        return res.status(200).json(result.rows[0]);
+    } catch (err) {
+        console.error(err.stack);
+        res.status(500).send('Internal server error');
     }
+
 });
 
 // DELETE route - delete a recipe
-app.delete('/recipes/:id', async (req, res) => {
+app.delete('/recipes/:id', authenticateToken, async (req, res) => {
     try {
-        const result = await pool.query('DELETE FROM recipes WHERE id = $1 RETURNING *', [req.params.id]);
+        const userId = req.user.userId;
+        const result = await pool.query('DELETE FROM recipes WHERE id = $1 AND user_id = $2 RETURNING *', [req.params.id, userId]);
 
-        if (result.rows.length == 0) return res.status(404).send('Recipe not found');
-        res.json(result.rows[0]);
+        if (result.rowCount === 0) return res.status(404).send('Recipe not found');
+        res.status(204).send('Meal successfully deleted');
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
