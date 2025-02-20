@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import Navbar from '@/vue/Navbar.vue';
-import Footer from '@/vue/Footer.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
@@ -78,7 +77,7 @@ const deleteMeal = async () => {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-danger" @click="deleteMeal">Confirm</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteMeal">Confirm</button>
                             </div>
                         </div>
                     </div>
