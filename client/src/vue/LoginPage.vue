@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import Navbar from '@/vue/Navbar.vue';
+import Footer from './Footer.vue';
 
 const message = ref('');
 const authStore = useAuthStore();
@@ -26,10 +27,15 @@ const handleLogin = async (userData) => {
 
 <template>
     <Navbar />
-    <div class="container-lg mt-5 w-50">
-        <LoginForm @login="handleLogin" />
-        <p v-if="message">{{ message }}</p>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-sm-6 col-md-4 col-12 container mt-5">
+                <LoginForm @login="handleLogin" />
+                <p v-if="message">{{ message }}</p>
+            </div>
+        </div>
     </div>
+    <Footer />
 </template>
 
 <style scoped>

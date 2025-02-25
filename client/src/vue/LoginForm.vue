@@ -34,6 +34,7 @@ const validateForm = () => {
 
 <template>
     <form @submit.prevent="validateForm">
+        <h1 class="fw-bold text-center">Log in</h1>
         <div class="mb-3">
             <label for="emailInput" class="form-label">Email address</label>
             <input type="email" class="form-control" id="emailInput" v-model="form.email">
@@ -44,7 +45,8 @@ const validateForm = () => {
         </div>
         <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
         <p v-if="errors.password" class="error-message">{{ errors.password }}</p>
-        <button type="submit" class="btn btn-primary">Log in</button>
+        <button type="submit" class="btn btn-primary w-100">Log in</button>
+        <p class="text-center mt-1">Don't have an account? <RouterLink to="/signup">Create one here</RouterLink>.</p>
     </form>
 </template>
 

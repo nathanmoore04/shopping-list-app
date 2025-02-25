@@ -37,7 +37,7 @@ onMounted(async () => {
         <h3 class="fw-light">Message of the day</h3>
         <div class="row justify-content-center mt-3">
             <div class="col-3"><RouterLink class="btn btn-outline-primary btn-lg float-end" to="/meals/create">Create a new meal</RouterLink></div>
-            <div class="col-3"><RouterLink class="btn btn-primary btn-lg float-start" to="/dashboard">Create a new plan</RouterLink></div>
+            <div class="col-3"><RouterLink class="btn btn-primary btn-lg float-start" to="/plans/create">Create a new plan</RouterLink></div>
         </div>
     </div>
     <div class="container">

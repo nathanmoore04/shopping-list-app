@@ -45,13 +45,17 @@ app.use(express.urlencoded({ extended: true }));
 
 // ----- USER AUTHENTICATION -----
 app.post('/signup', async (req, res) => {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     if (!email) {
         return res.status(400).send("Email address is required");
     } else if (!password) {
         return res.status(400).send("Password is required");
+    } else if (!name) {
+        return res.status(400).send('Name is required')
     }
+
+    console.log(name, email, password);
 
     try {
 
@@ -63,8 +67,8 @@ app.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await pool.query(
-            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email", 
-            [email, hashedPassword]
+            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id", 
+            [name, email, hashedPassword]
         );
 
         res.status(201).json(newUser.rows[0]);
@@ -102,8 +106,7 @@ app.post('/login', async (req, res) => {
         const token = jwt.sign({ userId: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' })
 
         res.status(200).json({
-            token: token,
-            email: email
+            token: token
         });
 
     } catch (err) {

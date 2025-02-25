@@ -7,6 +7,7 @@ import CreateMealPage from '@/vue/CreateMealPage.vue';
 import MealDetails from '@/vue/MealDetails.vue';
 import { useAuthStore } from '@/stores/auth';
 import EditMeal from '@/vue/EditMeal.vue';
+import CreatePlan from '@/vue/CreatePlan.vue';
 
 // Map Vue components to URLs
 const routes = [
@@ -32,6 +33,11 @@ const routes = [
   {
     path: '/meals/edit/:id',
     component: EditMeal,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/plans/create',
+    component: CreatePlan,
     meta: { requiresAuth: true }
   }
 ];
