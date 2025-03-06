@@ -25,6 +25,8 @@ const excludedDates = ref([]);
 
 const requiredMeals = ref([]);
 const excludedMeals = ref([]);
+const requiredMealsIds = ref([]);
+const excludedMealsIds = ref([]);
 
 const errorMessages = ref([]);
 
@@ -87,6 +89,67 @@ const removeExcludedDate = (index) => {
     excludedDates.value.splice(index, 1);
 };
 
+// Selects a meal from the user's list of meals that is not in the list of excluded meals
+const chooseMeal = () => {
+    let validMeal = false;
+    let meal = null;
+
+    while (!validMeal) {
+        meal = meals.value[Math.floor(Math.random() * meals.value.length)]
+        if (meal.id in excludedMealsIds.value) continue;
+        validMeal = true;
+    }
+
+    return meal;
+}
+
+const getMissingMeals = (planMealsIds) => {
+    let missingMeals = []
+
+    for (const id of requiredMealsIds.value) {
+        if (!planMealsIds.includes(id)) missingMeals.push(id);
+    }
+
+    return missingMeals;
+}
+
+const generatePlan = (planData) => {
+    let planMealsIds = [];
+
+    // Generate a list of meal ids that are not in excluded meal list
+    for (let i = 0; i < numMeals.value; i++) {
+        planMealsIds.push(chooseMeal().id);
+    }
+
+    // Replace random meals in the plan with the missing required meals
+    for (const mealId of getMissingMeals(planMealsIds)) {
+        planMealsIds[Math.floor(Math.random() * planMealsIds.length)] = mealId;
+    }
+
+    let planMeals = {};
+
+    // Loop through dates in range, map generated ids to dates
+    let currentDate = new Date(startDate.value);
+    let mealIndex = 0;
+    while (currentDate < endDate.value) {
+        if (!excludedDates.value.includes(currentDate)) {
+            for (let j = 0; j < mealsPerDay.value; j++) {
+                if (currentDate.toString() in planMeals) {
+                    planMeals[currentDate.toString()].push(planMealsIds[mealIndex]);
+                } else {
+                    let mealList = [];
+                    planMeals[currentDate.toString()] = mealList.push(planMealsIds[mealIndex]);
+                }
+
+                mealIndex++;
+                if (mealIndex >= planMealsIds.length) mealIndex = 0;
+            }
+        }
+    }
+
+    return planMeals;
+};
+
 const submitPlan = async () => {
     errorMessages.value = [];
 
@@ -98,8 +161,8 @@ const submitPlan = async () => {
         errorMessages.value.push('A meal cannot be both required and excluded.');
     }
 
-    const requiredMealsIds = requiredMeals.value.map(meal => meal.id);
-    const excludedMealsIds = excludedMeals.value.map(meal => meal.id);
+    requiredMealsIds.value = requiredMeals.value.map(meal => meal.id);
+    excludedMealsIds.value = excludedMeals.value.map(meal => meal.id);
 
     const formData = {
         name: planTitle.value,
@@ -110,6 +173,8 @@ const submitPlan = async () => {
         requiredMeals: requiredMealsIds,
         excludedMeals: excludedMealsIds
     }
+
+
 
     const token = authStore.token;
 
