@@ -78,7 +78,7 @@ const addExcludedDate = () => {
 
         console.log(date);
 
-        excludedDates.value.push(date);
+        excludedDates.value.push(tempExcludedDate.value);
         tempExcludedDate.value = '';
     }
 };
@@ -93,15 +93,22 @@ const submitPlan = async () => {
     if (!planTitle.value) errorMessages.value.push('Plan title is required.');
     if (numDays.value < 1) errorMessages.value.push('End date must be after start date.');
     if (numMeals.value < 1) errorMessages.value.push('Plan requires at least 1 meal.');
-    if (requiredMeals.value.some(meal => excludedMeals.value.includes(meal))) {
+    if (requiredMeals.value.some(reqMeal => 
+        excludedMeals.value.some(excMeal => excMeal.id === reqMeal.id))) {
         errorMessages.value.push('A meal cannot be both required and excluded.');
     }
 
+    const requiredMealsIds = requiredMeals.value.map(meal => meal.id);
+    const excludedMealsIds = excludedMeals.value.map(meal => meal.id);
+
     const formData = {
-        start_date: startDate.value,
-        end_date: endDate.value,
-        meals_per_day: mealsPerDay.value,
-        excluded_dates: excludedDates.value
+        name: planTitle.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+        mealsPerDay: mealsPerDay.value,
+        excludedDates: excludedDates.value,
+        requiredMeals: requiredMealsIds,
+        excludedMeals: excludedMealsIds
     }
 
     const token = authStore.token;
@@ -200,48 +207,67 @@ const submitPlan = async () => {
                             </div>
                         </div>
                     </div>
-                    <div class="row align-items-center mb-3">
+                    <div class="row align-items-start mb-3">
                         <div class="col-md-6 col-12">
                             <label for="requiredMeals" class="form-label mb-0">Required Meals</label>
                             <div class="form-text mb-1 mt-0">Select the meals that should be included</div>
                             <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
+                                <button class="btn btn-secondary dropdown-toggle w-100" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     Select required meals
                                 </button>
                                 <ul class="dropdown-menu w-100">
                                     <li v-for="meal in meals" :key="meal.id">
                                         <label class="dropdown-item">
-                                            <input type="checkbox" v-model="requiredMeals" :value="meal.id">
+                                            <input type="checkbox" v-model="requiredMeals" :value="{id: meal.id, name: meal.name}">
                                             {{ meal.name }}
                                         </label>
                                     </li>
                                 </ul>
                             </div>
+                            <ul class="list-group">
+                                <li v-for="(meal, index) in requiredMeals" :key="index"
+                                    class="list-group-item d-flex justify-content-between align-items-center border-0">
+                                    {{ meal.name }}
+                                    <div @click="requiredMeals.splice(index, 1)" style="cursor: pointer;">
+                                        <i class="bi bi-x text-danger"></i>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
                         <div class="col-md-6 col-12">
                             <label for="excludedMeals" class="form-label mb-0">Excluded Meals</label>
-                            <div class="form-text mb-1 mt-0">Select meals that should <span class="fw-bold">not</span> be included</div>
+                            <div class="form-text mb-1 mt-0">Select meals that should <span class="fw-bold">not</span>
+                                be included</div>
                             <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
+                                <button class="btn btn-secondary dropdown-toggle w-100" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     Select excluded meals
                                 </button>
                                 <ul class="dropdown-menu w-100">
                                     <li v-for="meal in meals" :key="meal.id">
                                         <label class="dropdown-item">
-                                            <input type="checkbox" v-model="excludedMeals" :value="meal.id">
+                                            <input type="checkbox" v-model="excludedMeals" :value="{id: meal.id, name: meal.name}">
                                             {{ meal.name }}
                                         </label>
                                     </li>
                                 </ul>
                             </div>
+                            <ul class="list-group">
+                                <li v-for="(meal, index) in excludedMeals" :key="index"
+                                    class="list-group-item d-flex justify-content-between align-items-center border-0">
+                                    {{ meal.name }}
+                                    <div @click="excludedMeals.splice(index, 1)" style="cursor: pointer;">
+                                        <i class="bi bi-x text-danger"></i>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <p v-for="error in errorMessages" class="text-danger my-0">
                         {{ error }}
                     </p>
-                    <button type="submit" class="btn btn-success w-100 mt-3">Submit Plan</button>
+                    <button type="submit" class="btn btn-success w-100 mt-3">Generate Plan</button>
                 </form>
 
             </div>

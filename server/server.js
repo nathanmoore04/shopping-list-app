@@ -10,8 +10,8 @@ const multer = require('multer');
 // ----- Server stuff -----
 const app = express();
 
-const HOSTNAME = '127.0.0.1';
-const SERVER_PORT = 3000;
+const HOSTNAME = process.env.SERVER_HOSTNAME;
+const PORT = process.env.SERVER_PORT;
 
 const upload = multer();
 
@@ -151,6 +151,7 @@ app.get('/', (req, res) => {
     res.send("Service is up and running");
 });
 
+// ------------------- MEALS -----------------------
 // GET route - list all of a user's recipes
 app.get('/recipes', authenticateToken, async (req, res) => {
     try {
@@ -255,7 +256,27 @@ app.delete('/recipes/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// ----------------------- PLANS ---------------------------
+app.post('/plans', authenticateToken, async (req, res) => {
+    const { name, startDate, endDate, mealsPerDay, excludedDates, requiredMeals, excludedMeals } = req.body;
+    const userId = req.user.userId;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO plans (user_id, start_date, end_date, meals_per_day, excluded_dates, required_meals, excluded_meals, name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+            [userId, startDate, endDate, mealsPerDay, excludedDates, requiredMeals, excludedMeals, name]
+        );
+
+        const plan = result.rows[0];
+
+        res.status(201).json(plan);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
 // Start server
-app.listen(SERVER_PORT, HOSTNAME, () => {
-    console.log(`Server running at http://${HOSTNAME}:${SERVER_PORT}`);
+app.listen(PORT, HOSTNAME, () => {
+    console.log(`Server running at http://${HOSTNAME}:${PORT}`);
 });
