@@ -40,8 +40,6 @@ onMounted(async () => {
 
         meals.value = response.data;
 
-        console.log(meals.value);
-
         if (meals.value.length === 0) {
             const modal = document.getElementById('noMealsModal');
             const modalInstance = new Modal(modal, {
@@ -113,7 +111,7 @@ const getMissingMeals = (planMealsIds) => {
     return missingMeals;
 }
 
-const generatePlan = (planData) => {
+const generatePlan = () => {
     let planMealsIds = [];
 
     // Generate a list of meal ids that are not in excluded meal list
@@ -121,30 +119,50 @@ const generatePlan = (planData) => {
         planMealsIds.push(chooseMeal().id);
     }
 
+    console.log("Meal ids (before required): " + planMealsIds);
+
+    let missingMeals = getMissingMeals(planMealsIds);
+    console.log("Missing meals: " + missingMeals);
+
     // Replace random meals in the plan with the missing required meals
-    for (const mealId of getMissingMeals(planMealsIds)) {
-        planMealsIds[Math.floor(Math.random() * planMealsIds.length)] = mealId;
-    }
+    while (missingMeals.length > 0) {
+        for (const mealId of missingMeals) {
+            planMealsIds[Math.floor(Math.random() * planMealsIds.length)] = mealId;
+        }
+
+        missingMeals = getMissingMeals(planMealsIds);
+        console.log("Missing meals: " + missingMeals);
+    }   
+
+    console.log("updated meal list: " + planMealsIds);
 
     let planMeals = {};
 
     // Loop through dates in range, map generated ids to dates
     let currentDate = new Date(startDate.value);
+    const endDateDate = new Date(endDate.value);
     let mealIndex = 0;
-    while (currentDate < endDate.value) {
+    while (currentDate <= endDateDate) {
         if (!excludedDates.value.includes(currentDate)) {
             for (let j = 0; j < mealsPerDay.value; j++) {
-                if (currentDate.toString() in planMeals) {
-                    planMeals[currentDate.toString()].push(planMealsIds[mealIndex]);
+                if (currentDate.toDateString() in planMeals) {
+                    let mealList = planMeals[currentDate.toDateString()];
+                    mealList.push(planMealsIds[mealIndex]);
+                    planMeals[currentDate.toDateString()] = mealList;
+                    console.log("Adding meal to day: " + currentDate.toDateString());
                 } else {
                     let mealList = [];
-                    planMeals[currentDate.toString()] = mealList.push(planMealsIds[mealIndex]);
+                    mealList.push(planMealsIds[mealIndex]);
+                    planMeals[currentDate.toDateString()] = mealList;
+                    console.log("Creating date mapping on day: " + currentDate.toDateString());
                 }
 
                 mealIndex++;
                 if (mealIndex >= planMealsIds.length) mealIndex = 0;
             }
         }
+
+        currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return planMeals;
@@ -160,28 +178,19 @@ const submitPlan = async () => {
         excludedMeals.value.some(excMeal => excMeal.id === reqMeal.id))) {
         errorMessages.value.push('A meal cannot be both required and excluded.');
     }
+    
+    if (errorMessages.value.length > 0) return;
 
     requiredMealsIds.value = requiredMeals.value.map(meal => meal.id);
     excludedMealsIds.value = excludedMeals.value.map(meal => meal.id);
 
-    const formData = {
-        name: planTitle.value,
-        startDate: startDate.value,
-        endDate: endDate.value,
-        mealsPerDay: mealsPerDay.value,
-        excludedDates: excludedDates.value,
-        requiredMeals: requiredMealsIds,
-        excludedMeals: excludedMealsIds
-    }
-
-
+    const plan = JSON.stringify(generatePlan());
 
     const token = authStore.token;
 
-    if (errorMessages.value.length > 0) return;
-
+    // TODO: verify server processes plan data correctly;
     try {
-        await axios.post('http://127.0.0.1:3000/plans', formData, {
+        await axios.post('http://127.0.0.1:3000/plans', plan, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
