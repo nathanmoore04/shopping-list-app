@@ -76,8 +76,6 @@ const addExcludedDate = () => {
         const splitDate = tempExcludedDate.value.split('-');
         const date = splitDate[1] + ' / ' + splitDate[2] + ' / ' + splitDate[0];
 
-        console.log(date);
-
         excludedDates.value.push(tempExcludedDate.value);
         tempExcludedDate.value = '';
     }
@@ -119,10 +117,7 @@ const generatePlan = () => {
         planMealsIds.push(chooseMeal().id);
     }
 
-    console.log("Meal ids (before required): " + planMealsIds);
-
     let missingMeals = getMissingMeals(planMealsIds);
-    console.log("Missing meals: " + missingMeals);
 
     // Replace random meals in the plan with the missing required meals
     while (missingMeals.length > 0) {
@@ -131,12 +126,9 @@ const generatePlan = () => {
         }
 
         missingMeals = getMissingMeals(planMealsIds);
-        console.log("Missing meals: " + missingMeals);
-    }   
+    }
 
-    console.log("updated meal list: " + planMealsIds);
-
-    let planMeals = {};
+    let planDays = [];
 
     // Loop through dates in range, map generated ids to dates
     let currentDate = new Date(startDate.value);
@@ -144,18 +136,18 @@ const generatePlan = () => {
     let mealIndex = 0;
     while (currentDate <= endDateDate) {
         if (!excludedDates.value.includes(currentDate)) {
+            const curDateString = currentDate.toISOString().split('T')[0];
+
+            let existingDay = planDays.find(day => day.date === curDateString);
+
+            if (!existingDay) {
+                existingDay = { date: curDateString, meals: [] };
+                planDays.push(existingDay);
+            }
+
+
             for (let j = 0; j < mealsPerDay.value; j++) {
-                if (currentDate.toDateString() in planMeals) {
-                    let mealList = planMeals[currentDate.toDateString()];
-                    mealList.push(planMealsIds[mealIndex]);
-                    planMeals[currentDate.toDateString()] = mealList;
-                    console.log("Adding meal to day: " + currentDate.toDateString());
-                } else {
-                    let mealList = [];
-                    mealList.push(planMealsIds[mealIndex]);
-                    planMeals[currentDate.toDateString()] = mealList;
-                    console.log("Creating date mapping on day: " + currentDate.toDateString());
-                }
+                existingDay.meals.push(planMealsIds[mealIndex]);
 
                 mealIndex++;
                 if (mealIndex >= planMealsIds.length) mealIndex = 0;
@@ -165,7 +157,7 @@ const generatePlan = () => {
         currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    return planMeals;
+    return planDays;
 };
 
 const submitPlan = async () => {
@@ -174,24 +166,38 @@ const submitPlan = async () => {
     if (!planTitle.value) errorMessages.value.push('Plan title is required.');
     if (numDays.value < 1) errorMessages.value.push('End date must be after start date.');
     if (numMeals.value < 1) errorMessages.value.push('Plan requires at least 1 meal.');
-    if (requiredMeals.value.some(reqMeal => 
+    if (requiredMeals.value.some(reqMeal =>
         excludedMeals.value.some(excMeal => excMeal.id === reqMeal.id))) {
         errorMessages.value.push('A meal cannot be both required and excluded.');
     }
-    
+
     if (errorMessages.value.length > 0) return;
 
     requiredMealsIds.value = requiredMeals.value.map(meal => meal.id);
     excludedMealsIds.value = excludedMeals.value.map(meal => meal.id);
 
-    const plan = JSON.stringify(generatePlan());
+    let planDays = generatePlan();
 
     const token = authStore.token;
+
+    const plan = {
+        title: planTitle.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+        days: planDays
+    }
+
+    const planString = JSON.stringify(plan);
+
+    console.log(planString);
 
     // TODO: verify server processes plan data correctly;
     try {
         await axios.post('http://127.0.0.1:3000/plans', plan, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                "Content-Type": 'application/json'
+             }
         });
 
         router.push('/dashboard');
@@ -293,7 +299,8 @@ const submitPlan = async () => {
                                 <ul class="dropdown-menu w-100">
                                     <li v-for="meal in meals" :key="meal.id">
                                         <label class="dropdown-item">
-                                            <input type="checkbox" v-model="requiredMeals" :value="{id: meal.id, name: meal.name}">
+                                            <input type="checkbox" v-model="requiredMeals"
+                                                :value="{ id: meal.id, name: meal.name }">
                                             {{ meal.name }}
                                         </label>
                                     </li>
@@ -321,7 +328,8 @@ const submitPlan = async () => {
                                 <ul class="dropdown-menu w-100">
                                     <li v-for="meal in meals" :key="meal.id">
                                         <label class="dropdown-item">
-                                            <input type="checkbox" v-model="excludedMeals" :value="{id: meal.id, name: meal.name}">
+                                            <input type="checkbox" v-model="excludedMeals"
+                                                :value="{ id: meal.id, name: meal.name }">
                                             {{ meal.name }}
                                         </label>
                                     </li>

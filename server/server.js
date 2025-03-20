@@ -258,21 +258,46 @@ app.delete('/recipes/:id', authenticateToken, async (req, res) => {
 
 // ----------------------- PLANS ---------------------------
 app.post('/plans', authenticateToken, async (req, res) => {
-    const { name, startDate, endDate, mealsPerDay, excludedDates, requiredMeals, excludedMeals } = req.body;
+    console.log(req.body);
+
+    const { title, startDate, endDate, days } = req.body;
     const userId = req.user.userId;
 
+    console.log(startDate);
+
+    const client = await pool.connect();
+
     try {
-        const result = await pool.query(
-            'INSERT INTO plans (user_id, start_date, end_date, meals_per_day, excluded_dates, required_meals, excluded_meals, name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-            [userId, startDate, endDate, mealsPerDay, excludedDates, requiredMeals, excludedMeals, name]
+        await client.query('BEGIN');
+
+        // Add plan
+        const planResult = await client.query(
+            'INSERT INTO plans (user_id, title, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING id',
+            [userId, title, startDate, endDate]
         );
 
-        const plan = result.rows[0];
+        const planId = planResult.rows[0].id;
 
-        res.status(201).json(plan);
+        for (const day of days) {
+            const date = day.date;
+            const daysResult = await client.query(`INSERT INTO plan_days (plan_id, date) VALUES ($1, $2) RETURNING id`, [planId, date]);
+
+            const dayId = daysResult.rows[0].id;
+
+            for (const mealId of day.meals) {
+                await client.query(`INSERT INTO plan_meals (plan_day_id, meal_id) VALUES ($1, $2)`, [dayId, mealId]);
+            }
+        }
+
+        await client.query('COMMIT');
+
+        res.status(201).json(planId);
     } catch (err) {
+        await client.query('ROLLBACK');
         console.error(err);
         res.status(500).send('Server error');
+    } finally {
+        client.release();
     }
 });
 
