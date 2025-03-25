@@ -193,14 +193,16 @@ const submitPlan = async () => {
 
     // TODO: verify server processes plan data correctly;
     try {
-        await axios.post('http://127.0.0.1:3000/plans', plan, {
+        const response = await axios.post('http://127.0.0.1:3000/plans', plan, {
             headers: { 
                 Authorization: `Bearer ${token}`,
                 "Content-Type": 'application/json'
-             }
+            }
         });
 
-        router.push('/dashboard');
+        const planId = response.data;
+
+        router.push(`/plans/${id}`);
     } catch (err) {
         console.error(err);
         errorMessages.value.push('Error submitting plan. Please try again.')

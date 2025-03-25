@@ -301,6 +301,33 @@ app.post('/plans', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/plans/:id', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+    const id = req.params;
+
+    try {
+        const planResponse = await pool.query('SELECT * FROM plans WHERE id = $1 AND user_id = $2', [id, userId]);
+
+        if (planResponse.rowCount === 0) return res.status(400).send('Plan not found');
+
+        const plan = planResponse.rows[0];
+
+        const dayResponse = await pool.query(`
+            SELECT pd.date, json_agg(m.*) AS meals
+            FROM plan_days pd
+            JOIN meals m ON pd.meal_id = m.id
+            WHERE pd.plan_id = $1
+            GROUP BY pd.date
+            ORDER BY pd.date;
+        `, [id]);
+
+        res.json({ ...plan, days: daysResult.rows });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
+
 // Start server
 app.listen(PORT, HOSTNAME, () => {
     console.log(`Server running at http://${HOSTNAME}:${PORT}`);
