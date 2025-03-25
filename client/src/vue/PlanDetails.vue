@@ -30,6 +30,17 @@ onMounted(async () => {
         errorMessage.value = 'Error fetching plan details. Please try again.'
     }
 });
+
+const parseDate = (dateString) => {
+    const shortenedDateString = dateString.split('T')[0];
+    const dateComponents = shortenedDateString.split('-');
+
+    const day = dateComponents[2].replace(/^0+/, '');
+    const month = dateComponents[1].replace(/^0+/, '');
+    const year = dateComponents[0];
+
+    return month + '/' + day + '/' + year;
+}
 </script>
 
 <template>
@@ -39,7 +50,16 @@ onMounted(async () => {
             <div class="container col col-md-8" v-if="plan">
                 <div class="row justify-content-between align-items-center">
                     <div class="col">
-                        <h1 class="fw-bold">{{ plan.name }}</h1>
+                        <h1 class="fw-bold">{{ plan.title }}</h1>
+                        <p>{{ parseDate(plan.start_date) }} to {{ parseDate(plan.end_date) }}</p>
+                        <ul>
+                            <div v-for="day in plan.days">
+                                <li>{{ parseDate(day.date) }}</li>
+                                <ul>
+                                    <li v-for="meal in day.meals">{{ meal.name }}</li>
+                                </ul>
+                            </div>
+                        </ul>
                     </div>
                 </div>
             </div>

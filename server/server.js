@@ -17,10 +17,10 @@ const upload = multer();
 
 // ----- DB stuff -----
 const pool = new Pool({
-    user: process.env.DB_USER, 
-    host: process.env.DB_HOST, 
-    database: process.env.DB_NAME, 
-    password: process.env.DB_PASSWORD, 
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
 });
 
@@ -67,7 +67,7 @@ app.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await pool.query(
-            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id", 
+            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id",
             [name, email, hashedPassword]
         );
 
@@ -185,7 +185,7 @@ app.get('/recipes/:id', async (req, res) => {
 // POST route - add a new recipe
 app.post('/recipes', authenticateToken, upload.none(), async (req, res) => {
     //console.log(req.body);
-    
+
     const { name, tags, ingredients, image, steps } = req.body;
     const userId = req.user.userId;
 
@@ -303,7 +303,7 @@ app.post('/plans', authenticateToken, async (req, res) => {
 
 app.get('/plans/:id', authenticateToken, async (req, res) => {
     const userId = req.user.userId;
-    const id = req.params;
+    const { id } = req.params;
 
     try {
         const planResponse = await pool.query('SELECT * FROM plans WHERE id = $1 AND user_id = $2', [id, userId]);
@@ -315,13 +315,14 @@ app.get('/plans/:id', authenticateToken, async (req, res) => {
         const dayResponse = await pool.query(`
             SELECT pd.date, json_agg(m.*) AS meals
             FROM plan_days pd
-            JOIN meals m ON pd.meal_id = m.id
+            JOIN plan_meals pm ON pd.id = pm.plan_day_id
+            JOIN recipes m ON pm.meal_id = m.id
             WHERE pd.plan_id = $1
             GROUP BY pd.date
             ORDER BY pd.date;
         `, [id]);
 
-        res.json({ ...plan, days: daysResult.rows });
+        res.json({ ...plan, days: dayResponse.rows });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
