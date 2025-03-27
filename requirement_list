@@ -13,14 +13,16 @@ Milestone 1:
 
 Milestone 2:
 Expand backend functionality
-navbar(s)
-account page, 
+(DONE) navbar(s)
+(DOING) account page, 
 meal cards has images. 
-(DOING) plan creation and edit page
-Design how the autogenerating works. 
-Plan page will autogenerate. black-list -+ white list. organize meals into the days. 
-Add API endpoints for meal plans
-Add API endpoints for recipes?
+(DONE) plan creation and edit page
+(DOING) make plan show on dashboard
+shopping list for plan. 
+(DONE) Design how the autogenerating works. 
+(DONE) Plan page will autogenerate. black-list -+ white list. organize meals into the days. 
+(DONE) Add API endpoints for meal plans
+(DONE) Add API endpoints for recipes/meal
 
 Milestone 3:
 Finalize essential frontend components
