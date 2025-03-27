@@ -33,6 +33,10 @@ const errorMessages = ref([]);
 onMounted(async () => {
     errorMessages.value = [];
 
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').setAttribute('min', today);
+    document.getElementById('endDate').setAttribute('min', today);
+
     try {
         const response = await axios.get('http://127.0.0.1:3000/recipes', {
             headers: { Authorization: `Bearer ${token}` }
@@ -61,7 +65,7 @@ const numDays = computed(() => {
     const start = new Date(startDate.value);
     const end = new Date(endDate.value);
 
-    const interval = (end - start) / (1000 * 60 * 60 * 24); // Convert to days
+    const interval = (end - start) / (1000 * 60 * 60 * 24) - excludedDates.value.length; // Convert to days
 
     return interval >= 0 ? interval + 1 : 0;
 });
@@ -72,10 +76,6 @@ const numMeals = computed(() => {
 
 const addExcludedDate = () => {
     if (tempExcludedDate.value && !excludedDates.value.includes(tempExcludedDate.value)) {
-
-        const splitDate = tempExcludedDate.value.split('-');
-        const date = splitDate[1] + ' / ' + splitDate[2] + ' / ' + splitDate[0];
-
         excludedDates.value.push(tempExcludedDate.value);
         tempExcludedDate.value = '';
     }
@@ -135,16 +135,15 @@ const generatePlan = () => {
     const endDateDate = new Date(endDate.value);
     let mealIndex = 0;
     while (currentDate <= endDateDate) {
-        if (!excludedDates.value.includes(currentDate)) {
-            const curDateString = currentDate.toISOString().split('T')[0];
+        const curDateString = currentDate.toISOString().split('T')[0];
 
+        if (!excludedDates.value.includes(curDateString)) {
             let existingDay = planDays.find(day => day.date === curDateString);
 
             if (!existingDay) {
                 existingDay = { date: curDateString, meals: [] };
                 planDays.push(existingDay);
             }
-
 
             for (let j = 0; j < mealsPerDay.value; j++) {
                 existingDay.meals.push(planMealsIds[mealIndex]);
@@ -164,7 +163,7 @@ const submitPlan = async () => {
     errorMessages.value = [];
 
     if (!planTitle.value) errorMessages.value.push('Plan title is required.');
-    if (numDays.value < 1) errorMessages.value.push('End date must be after start date.');
+    if (numDays.value < 1) errorMessages.value.push('End date must be at least the same as start date.');
     if (numMeals.value < 1) errorMessages.value.push('Plan requires at least 1 meal.');
     if (requiredMeals.value.some(reqMeal =>
         excludedMeals.value.some(excMeal => excMeal.id === reqMeal.id))) {
@@ -175,6 +174,8 @@ const submitPlan = async () => {
 
     requiredMealsIds.value = requiredMeals.value.map(meal => meal.id);
     excludedMealsIds.value = excludedMeals.value.map(meal => meal.id);
+
+    console.log(excludedDates.value);
 
     let planDays = generatePlan();
 
@@ -187,11 +188,6 @@ const submitPlan = async () => {
         days: planDays
     }
 
-    const planString = JSON.stringify(plan);
-
-    console.log(planString);
-
-    // TODO: verify server processes plan data correctly;
     try {
         const response = await axios.post('http://127.0.0.1:3000/plans', plan, {
             headers: { 
@@ -202,7 +198,7 @@ const submitPlan = async () => {
 
         const planId = response.data;
 
-        router.push(`/plans/${id}`);
+        router.push(`/plans/${planId}`);
     } catch (err) {
         console.error(err);
         errorMessages.value.push('Error submitting plan. Please try again.')
@@ -239,12 +235,12 @@ const submitPlan = async () => {
                     </div>
                 </div>
 
-                <form @submit.prevent="submitPlan">
+                <div>
                     <div class="mb-3">
                         <label for="title" class="mb-1">Plan title</label>
                         <input type="text" class="form-control" id="title" v-model="planTitle" placeholder="Plan title">
                     </div>
-                    <div>
+                    <div class="mb-3">
                         <div class="row align-items-center">
                             <div class="col">
                                 <label for="startDate" class="mb-1">Start date</label>
@@ -255,14 +251,12 @@ const submitPlan = async () => {
                                 <input id="endDate" class="form-control" type="date" v-model="endDate" />
                             </div>
                         </div>
-                        <div v-if="numDays >= 0" class="form-text fs-6 text-center mb-0 planLength">
-                            Plan Length: <span class="fw-bold">{{ numDays }}</span> days
-                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="excludedDates">Exclude dates</label>
                         <div class="form-text mb-1 mt-0">Add dates to exclude in plan generation. Take a night off!
                         </div>
+
                         <div class="d-flex input-group">
                             <input type="date" class="form-control" v-model="tempExcludedDate" :min="startDate"
                                 :max="endDate" />
@@ -277,12 +271,15 @@ const submitPlan = async () => {
                                 </div>
                             </li>
                         </ul>
+                        <div v-if="numDays >= 0" class="form-text fs-6 text-center mb-0 planLength">
+                            Plan Length: <span class="fw-bold">{{ numDays }}</span> days
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="numMeals" class="mb-1">Meals per day</label>
                         <div class="row align-items-center">
                             <div class="col-sm-6 col-12">
-                                <input id="numMeals" class="form-control" type="number" v-model="mealsPerDay" />
+                                <input id="numMeals" class="form-control" type="number" min="1" v-model="mealsPerDay" />
                             </div>
                             <div class="col-sm-6 col-12">
                                 <div class="form-text my-0">We'll generate a total of {{ numMeals }} meals</div>
@@ -351,8 +348,8 @@ const submitPlan = async () => {
                     <p v-for="error in errorMessages" class="text-danger my-0">
                         {{ error }}
                     </p>
-                    <button type="submit" class="btn btn-success w-100 mt-3">Generate Plan</button>
-                </form>
+                    <button @click="submitPlan" class="btn btn-success w-100 mt-3">Generate Plan</button>
+                </div>
 
             </div>
         </div>
