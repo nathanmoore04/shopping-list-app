@@ -70,6 +70,23 @@ const openMealDetails = (mealId) => {
     router.push(`/meals/${mealId}`);
 }
 
+const deletePlan = async () => {
+    errorMessage.value = '';
+
+    try {
+        await axios.delete(`http://127.0.0.1:3000/plans/${route.params.id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        dialogAllowed.value = false;
+        router.push('/dashboard');
+    } catch (err) {
+        console.error(err);
+        errorMessage.value = 'Error deleting plan. Please try again.';
+        dialogAllowed.value = true;
+    }
+}
+
 </script>
 
 <template>
@@ -83,7 +100,7 @@ const openMealDetails = (mealId) => {
                     </div>
                     <div class="col">
                         <button class="btn btn-primary float-end" @click="generateShoppingList">Generate Shopping List</button>
-                        <button class="btn btn-primary float-end" @click="editMeal">Edit Plan</button>
+                        <button class="btn btn-primary float-end me-1" @click="editMeal">Edit Plan</button>
                         <button class="btn btn-danger float-end me-1" data-bs-toggle="modal" data-bs-target="#exampleModal">Delete Plan</button>
                     </div>
                 </div>

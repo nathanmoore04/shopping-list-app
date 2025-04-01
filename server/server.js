@@ -329,6 +329,19 @@ app.get('/plans/:id', authenticateToken, async (req, res) => {
     }
 });
 
+app.delete('/plans/:id', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const result = await pool.query('DELETE FROM plans WHERE id = $1 AND user_id = $2 RETURNING *', [req.params.id, userId]);
+
+        if (result.rowCount === 0) return res.status(404).send('Recipe not found');
+        res.status(204).send('Meal successfully deleted');
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
 // Start server
 app.listen(PORT, HOSTNAME, () => {
     console.log(`Server running at http://${HOSTNAME}:${PORT}`);
