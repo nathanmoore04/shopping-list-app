@@ -96,6 +96,8 @@ app.post('/login', async (req, res) => {
             return res.status(400).send('Invalid email or password');
         }
 
+        const name = user.rows[0].name;
+
         // Validate password
         const validPassword = await bcrypt.compare(password, user.rows[0].password);
         if (!validPassword) {
@@ -106,7 +108,8 @@ app.post('/login', async (req, res) => {
         const token = jwt.sign({ userId: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '2h' })
 
         res.status(200).json({
-            token: token
+            token: token,
+            name: name
         });
 
     } catch (err) {
@@ -300,6 +303,46 @@ app.post('/plans', authenticateToken, async (req, res) => {
         client.release();
     }
 });
+
+app.get('/plans', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const planResponse = await pool.query(`
+            SELECT id, title, start_date, end_date 
+            FROM plans 
+            WHERE user_id = $1
+            ORDER BY start_date DESC;`,
+            [userId]);
+
+        if (planResponse.rowCount === 0) return res.status(200).json([]);
+        
+        const plans = planResponse.rows;
+        
+        const planIds = plans.map(plan => plan.id);
+        const mealsResponse = await pool.query(`
+            SELECT p.id AS plan_id, m.id AS meal_id, m.name
+            FROM plans p
+            JOIN plan_days pd ON p.id = pd.plan_id
+            JOIN plan_meals pm ON pd.id = pm.plan_day_id
+            JOIN recipes m ON pm.meal_id = m.id
+            WHERE p.user_id = $1 AND p.id = ANY($2)
+            ORDER BY pd.date ASC;
+        `, [userId, planIds]);
+        
+        const meals = mealsResponse.rows;
+
+        const plansWithMeals = plans.map(plan => ({
+            ...plan,
+            meals: meals.filter(meal => meal.plan_id === plan.id)
+        }));
+
+        return res.status(200).json(plansWithMeals);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+})
 
 app.get('/plans/:id', authenticateToken, async (req, res) => {
     const userId = req.user.userId;

@@ -14,7 +14,7 @@ const viewMeal = () => {
 </script>
 
 <template>
-    <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center">
+    <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-1">
         <div class="card">
             <img :src="meal.image" class="card-img-top" alt="..." v-if="meal.image">
             <div class="card-body">
