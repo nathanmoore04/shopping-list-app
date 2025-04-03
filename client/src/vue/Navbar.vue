@@ -27,10 +27,10 @@ const handleLogout = () => {
             <RouterLink v-if="authStore.isAuthenticated" to="/dashboard" class="nav-link">Dashboard</RouterLink>
           </li>
           <li class="nav-item mx-1">
-            <RouterLink v-if="authStore.isAuthenticated" to="/" class="nav-link">Meals</RouterLink>
+            <RouterLink v-if="authStore.isAuthenticated" to="/meals" class="nav-link">Meals</RouterLink>
           </li>
           <li class="nav-item mx-1">
-            <RouterLink v-if="authStore.isAuthenticated" to="/" class="nav-link">Plans</RouterLink>
+            <RouterLink v-if="authStore.isAuthenticated" to="/plans" class="nav-link">Plans</RouterLink>
           </li>
           <li class="nav-item mx-1">
             <RouterLink v-if="authStore.isAuthenticated" to="/" class="nav-link">Account</RouterLink>
@@ -46,7 +46,7 @@ const handleLogout = () => {
 <style scoped>
 .navbar {
     box-shadow: 0;
-    transition: all 0.3s;
+    transition: box-shadow 0.3s ease-in-out;
 }
 
 .navbar:hover {

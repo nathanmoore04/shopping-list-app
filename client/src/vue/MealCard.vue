@@ -15,7 +15,7 @@ const viewMeal = () => {
 
 <template>
     <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-1">
-        <div class="card">
+        <div class="card" @click="viewMeal">
             <img :src="meal.image" class="card-img-top" alt="..." v-if="meal.image">
             <div class="card-body">
                 <h5 class="card-title fw-semibold">{{ meal.name }}</h5>
@@ -36,7 +36,7 @@ const viewMeal = () => {
 
 <style scoped>
 .card {
-    transition: all 0.3s ease-in-out;
+    transition: transform 0.2s ease-in-out;
     min-width: 18rem;
 }
 

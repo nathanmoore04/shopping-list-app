@@ -9,6 +9,8 @@ import { useAuthStore } from '@/stores/auth';
 import EditMeal from '@/vue/EditMeal.vue';
 import CreatePlan from '@/vue/CreatePlan.vue';
 import PlanDetails from '@/vue/PlanDetails.vue';
+import Meals from '@/vue/Meals.vue';
+import Plans from '@/vue/Plans.vue';
 
 // Map Vue components to URLs
 const routes = [
@@ -44,6 +46,16 @@ const routes = [
   {
     path: '/plans/:id',
     component: PlanDetails,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/meals',
+    component: Meals,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/plans',
+    component: Plans,
     meta: { requiresAuth: true }
   }
 ];
