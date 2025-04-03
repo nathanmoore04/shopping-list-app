@@ -109,7 +109,8 @@ app.post('/login', async (req, res) => {
 
         res.status(200).json({
             token: token,
-            name: name
+            name: name,
+            email: email
         });
 
     } catch (err) {

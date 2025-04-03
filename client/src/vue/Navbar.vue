@@ -33,7 +33,7 @@ const handleLogout = () => {
             <RouterLink v-if="authStore.isAuthenticated" to="/plans" class="nav-link">Plans</RouterLink>
           </li>
           <li class="nav-item mx-1">
-            <RouterLink v-if="authStore.isAuthenticated" to="/" class="nav-link">Account</RouterLink>
+            <RouterLink v-if="authStore.isAuthenticated" to="/account" class="nav-link">Account</RouterLink>
           </li>
         </ul>
         <button v-if="authStore.isAuthenticated" @click="handleLogout" class="btn btn-outline-primary">Logout</button>

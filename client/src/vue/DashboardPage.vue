@@ -74,7 +74,6 @@ onMounted(async () => {
     if (authStore.userName) userName.value = authStore.userName;
 
     try {
-
         // Get all meals for user
         const mealResponse = await axios.get('http://127.0.0.1:3000/recipes', {
             headers: { Authorization: `Bearer ${token}` }
