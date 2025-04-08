@@ -4,6 +4,9 @@ import { ref, onMounted } from 'vue';
 import Navbar from '@/vue/Navbar.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import MealCard from './MealCard.vue';
+import { Modal } from 'bootstrap';
+import Footer from './Footer.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -16,15 +19,26 @@ const dialogAllowed = ref(true);
 const authStore = useAuthStore();
 const token = authStore.token;
 
+const availableMeals = ref([]);
+
+// Refs to track the current replacement context:
+const currentDayDate = ref('');
+const currentMealIndex = ref(null);
+const selectedReplacementMealId = ref(null);
+
 onMounted(async () => {
     try {
         const response = await axios.get(`http://127.0.0.1:3000/plans/${route.params.id}`,
             { headers: { Authorization: `Bearer ${token}` } }
         );
+
         plan.value = response.data;
 
-        console.log(plan.value);
+        const mealResponse = await axios.get('http://127.0.0.1:3000/recipes',
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
 
+        availableMeals.value = mealResponse.data;
     } catch (err) {
         console.error(err.message);
         errorMessage.value = 'Error fetching plan details. Please try again.'
@@ -70,6 +84,66 @@ const openMealDetails = (mealId) => {
     router.push(`/meals/${mealId}`);
 }
 
+const replaceModalRef = ref(null);
+let modalInstance = null;
+
+// Open the modal for replacing a meal:
+const openReplaceModal = (dayDate, mealIndex) => {
+    currentDayDate.value = dayDate;
+    currentMealIndex.value = mealIndex;
+    selectedReplacementMealId.value = null;
+
+    if (replaceModalRef.value) {
+        modalInstance = new Modal(replaceModalRef.value, { backdrop: 'static' });
+        modalInstance.show();
+    }
+};
+
+const closeReplaceModal = () => {
+    // Reset current context after modal is closed
+    if (modalInstance) {
+        modalInstance.hide();
+    }
+
+    currentDayDate.value = '';
+    currentMealIndex.value = null;
+    selectedReplacementMealId.value = null;
+};
+
+// Apply the replacement once the user selects a new meal:
+const applyReplacementMeal = () => {
+    if (!selectedReplacementMealId.value) return;
+
+    // Find the day object for the given date
+    const dayIndex = plan.value.days.findIndex(d => d.date === currentDayDate.value);
+
+    console.log(currentMealIndex.value);
+
+    if (dayIndex && currentMealIndex.value !== null) {
+        // Find the meal in availableMeals to ensure we have full meal details
+        const newMeal = availableMeals.value.find(m => m.id === selectedReplacementMealId.value);
+        if (newMeal) {
+            // Replace the meal at the given index
+            plan.value.days[dayIndex].meals.splice(currentMealIndex.value, 1, newMeal);
+            console.log(plan.value.days);
+        }
+    }
+    closeReplaceModal();
+};
+
+// Save the updated plan to the backend
+const savePlanChanges = async () => {
+    try {
+        // You might send the updated plan object directly or just the changed parts.
+        await axios.put(`http://127.0.0.1:3000/plans/${plan.value.id}`, plan.value);
+        alert('Plan updated successfully!');
+        // Optionally refresh data or navigate as needed.
+    } catch (err) {
+        console.error(err);
+        alert('Failed to update the plan.');
+    }
+};
+
 const deletePlan = async () => {
     errorMessage.value = '';
 
@@ -91,56 +165,80 @@ const deletePlan = async () => {
 
 <template>
     <Navbar />
-    <div class="container">
-        <div class="row mt-3">
-            <div class="container col col-md-8" v-if="plan">
-                <div class="row justify-content-between align-items-center">
-                    <div class="col">
-                        <h1 class="fw-bold">{{ plan.title }}</h1>
+    <div class="container" v-if="plan">
+        <div class="row justify-content-between align-items-center">
+            <div class="col">
+                <h1 class="fw-bold">{{ plan.title }}</h1>
+            </div>
+            <div class="col">
+                <button class="btn btn-primary float-end" @click="generateShoppingList">Generate Shopping List</button>
+                <button class="btn btn-danger float-end me-1" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal">Delete Plan</button>
+            </div>
+        </div>
+
+        <!-- Modal code as-is -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" v-if="dialogAllowed">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Heads up!</h1>
                     </div>
-                    <div class="col">
-                        <button class="btn btn-primary float-end" @click="generateShoppingList">Generate Shopping List</button>
-                        <button class="btn btn-primary float-end me-1" @click="editMeal">Edit Plan</button>
-                        <button class="btn btn-danger float-end me-1" data-bs-toggle="modal" data-bs-target="#exampleModal">Delete Plan</button>
+                    <div class="modal-body">
+                        Are you sure you want to delete this plan? This action can't be undone!
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                            @click="deletePlan">Confirm</button>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="modal fade" id="exampleModal" tabindex="-1" v-if="dialogAllowed">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Heads up!</h1>
-                            </div>
-                            <div class="modal-body">
-                                Are you sure you want to delete this plan? This action can't be undone!
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deletePlan">Confirm</button>
-                            </div>
-                        </div>
+        <p>{{ parseDate(plan.start_date) }} to {{ parseDate(plan.end_date) }}</p>
+        <h4 class="fw-bold mb-0">Plan meals</h4>
+
+        <div v-for="(day, dayIndex) in plan.days" :key="day.date" class="plan-day">
+            <h6>{{ parseDate(day.date) }}</h6>
+            <div class="row align-items-start mt-2">
+                <MealCard v-for="meal in day.meals" :key="meal.id" :meal="meal" :replace-button="true"
+                    @replace="openReplaceModal(day.date, day.meals.findIndex(m => m.id === meal.id))" />
+            </div>
+        </div>
+
+        <!-- Replacement Meal Selection Modal -->
+        <div class="modal fade" id="replaceMealModal" tabindex="-1" ref="replaceModalRef" aria-labelledby="replaceMealModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="replaceMealModalLabel">Select a Replacement Meal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                            @click="closeReplaceModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <select v-model="selectedReplacementMealId" class="form-select">
+                            <option v-for="meal in availableMeals" :key="meal.id" :value="meal.id">
+                                {{ meal.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            @click="closeReplaceModal">Cancel</button>
+                        <button type="button" class="btn btn-primary" @click="applyReplacementMeal">Apply</button>
                     </div>
                 </div>
-
-                <p>{{ parseDate(plan.start_date) }} to {{ parseDate(plan.end_date) }}</p>
-                <h4 class="fw-bold mb-0">Plan meals</h4>
-                <p class="text-body-tertiary fst-italic mt-0 mb-1">Click each meal for more details</p>
-                <ul>
-                    <div v-for="day in plan.days">
-                        <li>{{ parseDate(day.date) }}</li>
-                        <ul>
-                            <li v-for="meal in day.meals"><a class="link-body-emphasis" @click="openMealDetails(meal.id)">{{ meal.name }}</a></li>
-                        </ul>
-                    </div>
-                </ul>
             </div>
         </div>
     </div>
-    <!-- <Footer /> -->
+    <div v-else class="container">
+        <p>Loading plan details...</p>
+    </div>
+    <Footer />
 </template>
 
+
 <style scoped>
-.link-body-emphasis {
-    cursor: pointer;
-}
 </style>

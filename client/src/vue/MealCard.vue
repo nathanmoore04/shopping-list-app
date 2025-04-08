@@ -5,7 +5,10 @@ const router = useRouter();
 
 const props = defineProps({
     meal: Object,
+    replaceButton: Boolean
 });
+
+const emit = defineEmits(['replace']);
 
 const viewMeal = () => {
     router.push(`/meals/${props.meal.id}`);
@@ -15,7 +18,7 @@ const viewMeal = () => {
 
 <template>
     <div class="col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-1">
-        <div class="card" @click="viewMeal">
+        <div class="card">
             <img :src="meal.image" class="card-img-top" alt="..." v-if="meal.image">
             <div class="card-body">
                 <h5 class="card-title fw-semibold">{{ meal.name }}</h5>
@@ -28,7 +31,8 @@ const viewMeal = () => {
                 <p class="card-text">
                     {{ meal.ingredients.length }} ingredients
                 </p>
-                <button class="btn btn-primary" @click="viewMeal">View details</button>
+                <button class="btn btn-primary me-1" @click="viewMeal">View details</button>
+                <button v-if="replaceButton" class="btn btn-primary" @click="emit('replace')">Replace meal</button>
             </div>
         </div>
     </div>

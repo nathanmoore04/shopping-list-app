@@ -12,6 +12,7 @@ import PlanDetails from '@/vue/PlanDetails.vue';
 import Meals from '@/vue/Meals.vue';
 import Plans from '@/vue/Plans.vue';
 import Account from '@/vue/Account.vue';
+import EditPlan from '@/vue/EditPlan.vue';
 
 // Map Vue components to URLs
 const routes = [
@@ -57,6 +58,11 @@ const routes = [
   {
     path: '/plans',
     component: Plans,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/plans/edit/:id',
+    component: EditPlan,
     meta: { requiresAuth: true }
   },
   {
