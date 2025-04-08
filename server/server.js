@@ -55,8 +55,6 @@ app.post('/signup', async (req, res) => {
         return res.status(400).send('Name is required')
     }
 
-    console.log(name, email, password);
-
     try {
 
         const existingUsers = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
@@ -139,6 +137,20 @@ const authenticateToken = (req, res, next) => {
         res.status(403).send('Invalid token');
     }
 };
+
+// Delete user info
+app.delete('/user', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const response = await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+
+        return res.status(204).send('User deleted');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
 
 // ----- ROUTES -----
 // Route for checking if a user token is valid, used in protecting frontend routes

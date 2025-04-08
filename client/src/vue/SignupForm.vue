@@ -28,7 +28,7 @@ const validateForm = () => {
     else if (form.value.password.length < 8) errors.value.push('Minimum password length is 8 characters.');
     else if (form.value.password !== form.value.confirmPassword) errors.value.push('Passwords do not match.');
 
-    if (errors.value) return;    
+    if (errors.value.length > 0) return;    
     else {
         emit('signup', {
             name: form.value.name,

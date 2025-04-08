@@ -1,23 +1,40 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
-// Initial dark mode setting based on browser preferences
-const darkMode = ref(window.matchMedia('(prefers-color-scheme: dark)').matches)
-document.documentElement.setAttribute('data-bs-theme', darkMode.value ? 'dark' : 'light')
+const isDarkMode = ref(false);
 
-const handleDarkMode = () => {
-    darkMode.value = !darkMode.value
-    document.documentElement.setAttribute('data-bs-theme', darkMode.value ? 'dark' : 'light')
-};
+// Check localStorage and set initial state
+onMounted(() => {
+  const storedPreference = localStorage.getItem('darkMode');
+  if (storedPreference !== null) {
+    isDarkMode.value = storedPreference === 'true';
+  }
+  // Apply the theme
+  applyTheme();
+});
+
+// Watch for changes and save preference
+watch(isDarkMode, (newVal) => {
+  localStorage.setItem('darkMode', newVal);
+  applyTheme();
+});
+
+function toggleDarkMode() {
+  isDarkMode.value = !isDarkMode.value;
+}
+
+function applyTheme() {
+    document.documentElement.setAttribute('data-bs-theme', isDarkMode.value ? 'dark' : 'light');
+}
 
 </script>
 
 <template>
     <div class="form-check form-switch">
-        <input @click="handleDarkMode" class="form-check-input" type="checkbox" :checked="darkMode" role="switch" id="switcher">
+        <input @click="toggleDarkMode" class="form-check-input" type="checkbox" :checked="isDarkMode" role="switch" id="switcher">
         <label class="form-check-label" for="switcher">
             <Transition>
-                <i v-if="!darkMode" class="bi bi-sun" alt="Light mode"></i>
+                <i v-if="!isDarkMode" class="bi bi-sun" alt="Light mode"></i>
                 <i v-else class="bi bi-moon" alt="Dark mode"></i>
             </Transition>
         </label>

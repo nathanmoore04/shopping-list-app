@@ -4,31 +4,61 @@ import axios from 'axios';
 import Navbar from './Navbar.vue';
 import Footer from './Footer.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
+const router = useRouter();
 
 const email = ref(authStore.email);
 const name = ref(authStore.userName);
+const errorMessage = ref('');
+
+const token = authStore.token;
+
+const updateInfo = async () => {
+    errorMessage.value = '';
+};
+
+const deleteUser = async () => {
+    errorMessage.value = '';
+
+    try {
+        axios.delete('http://127.0.0.1:3000/user', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        authStore.logout();
+        router.push("/");
+    } catch (err) {
+        errorMessage.value = 'Error deleting user data. Please try again.';
+        console.error(err);
+    }
+};
 </script>
 
 <template>
 <Navbar />
-<div class="container-lg w-50 mt-5">
-    <h3 class="fw-bold">Account details</h3>
-    <div class="mb-3">
-        <label for="title" class="mb-1">Email address</label>
-        <input type="text" class="form-control" v-model="email" disabled>
-    </div>
-    <div class="mb-3">
-        <label for="title" class="mb-1">First name</label>
-        <input type="text" class="form-control" v-model="name">
-    </div>
-    <div class="row mb-3 align-items-center">
-        <div class="col col-md-6">
-            <button class="btn btn-success w-100">Update info</button>
-        </div>
-        <div class="col col-md-6">
-            <button class="btn btn-outline-danger w-100">Delete account</button>
+<div class="container-lg mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-12">
+            <h3 class="fw-bold">Account details</h3>
+            <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
+            <div class="mb-3">
+                <label for="title" class="mb-1">Email address</label>
+                <input type="text" class="form-control" v-model="email" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="title" class="mb-1">First name</label>
+                <input type="text" class="form-control" v-model="name">
+            </div>
+            <div class="row mb-3 align-items-center">
+                <div class="col-12 col-md-6">
+                    <button class="btn btn-success w-100 mb-2" @click="updateInfo">Update info</button>
+                </div>
+                <div class="col-12 col-md-6">
+                    <button class="btn btn-outline-danger w-100" @click="deleteUser">Delete account</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
