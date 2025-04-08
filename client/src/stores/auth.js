@@ -18,6 +18,14 @@ export const useAuthStore = defineStore('auth', {
         logout() {
             this.user = null;
             localStorage.removeItem('user');
-        }
-    } 
+        },
+        updateName(value) {
+            if (this.user) {
+              // Update the specified field
+              this.user["name"] = value;
+              // Optionally, save to localStorage (if that's how you're persisting)
+              localStorage.setItem('user', JSON.stringify(this.user));
+            }
+          }
+    }
 });

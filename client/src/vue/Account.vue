@@ -12,11 +12,30 @@ const router = useRouter();
 const email = ref(authStore.email);
 const name = ref(authStore.userName);
 const errorMessage = ref('');
+const successMessage = ref('');
 
 const token = authStore.token;
 
 const updateInfo = async () => {
     errorMessage.value = '';
+
+    const userData = {
+        email: email.value,
+        name: name.value
+    }
+
+    try {
+        const response = axios.put('http://127.0.0.1:3000/user', userData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        authStore.updateName(name.value);
+
+        successMessage.value = "Successfully updated user data!";
+    } catch (err) {
+        errorMessage.value = 'Error updating user data. Please try again.';
+        console.error(err);
+    }
 };
 
 const deleteUser = async () => {
@@ -59,6 +78,7 @@ const deleteUser = async () => {
                     <button class="btn btn-outline-danger w-100" @click="deleteUser">Delete account</button>
                 </div>
             </div>
+            <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
         </div>
     </div>
 </div>

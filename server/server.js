@@ -143,9 +143,24 @@ app.delete('/user', authenticateToken, async (req, res) => {
     const userId = req.user.userId;
 
     try {
-        const response = await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+        await pool.query('DELETE FROM users WHERE id = $1', [userId]);
 
         return res.status(204).send('User deleted');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
+app.put('/user', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    const { name } = req.body;
+
+    try {
+        await pool.query('UPDATE users SET name = $1 WHERE id = $2', [name, userId]);
+
+        res.status(204).send('Updated successfully');
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
