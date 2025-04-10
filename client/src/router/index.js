@@ -8,11 +8,11 @@ import MealDetails from '@/vue/MealDetails.vue';
 import { useAuthStore } from '@/stores/auth';
 import EditMeal from '@/vue/EditMeal.vue';
 import CreatePlan from '@/vue/CreatePlan.vue';
-import PlanDetails from '@/vue/PlanDetails.vue';
 import Meals from '@/vue/Meals.vue';
 import Plans from '@/vue/Plans.vue';
 import Account from '@/vue/Account.vue';
 import EditPlan from '@/vue/EditPlan.vue';
+import PlanDetailsParent from '@/vue/PlanDetailsParent.vue';
 
 // Map Vue components to URLs
 const routes = [
@@ -47,7 +47,7 @@ const routes = [
   },
   {
     path: '/plans/:id',
-    component: PlanDetails,
+    component: PlanDetailsParent,
     meta: { requiresAuth: true }
   },
   {

@@ -1,12 +1,10 @@
 <script setup>
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
-import Navbar from '@/vue/Navbar.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import MealCard from './MealCard.vue';
 import { Modal } from 'bootstrap';
-import Footer from './Footer.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -30,6 +28,8 @@ const currentMealIndex = ref(null);
 const selectedReplacementMealId = ref(null);
 
 const changedDays = ref([]);
+
+const emit = defineEmits(['list']);
 
 onMounted(async () => {
     try {
@@ -67,13 +67,14 @@ const generateShoppingList = () => {
     plan.value.days.forEach(day => {
         day.meals.forEach(meal => {
             meal.ingredients.forEach(ingredient => {
-                const key = `${ingredient.name}-${ingredient.unit}`; // Unique key per ingredient-unit pair
+                const ingredientName = ingredient.name.toLowerCase();
+                const key = `${ingredientName}-${ingredient.unit}`; // Unique key per ingredient-unit pair
 
                 if (ingredientMap[key]) {
                     ingredientMap[key].amount += ingredient.amount;
                 } else {
                     ingredientMap[key] = {
-                        name: ingredient.name,
+                        name: ingredientName,
                         amount: ingredient.amount,
                         unit: ingredient.unit
                     };
@@ -82,7 +83,7 @@ const generateShoppingList = () => {
         });
     });
 
-    console.log(Object.values(ingredientMap));
+    emit('list', ingredientMap);
 }
 
 // Open the modal for replacing a meal:
@@ -170,7 +171,6 @@ const deletePlan = async () => {
 </script>
 
 <template>
-    <Navbar />
     <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
     <div class="container mt-2" v-if="plan">
         <div class="row justify-content-between align-items-center">
@@ -249,7 +249,6 @@ const deletePlan = async () => {
             <button class="btn btn-success" @click="savePlanChanges">Save changes</button>
         </div>
     </Transition>
-    <Footer />
 </template>
 
 
