@@ -289,12 +289,8 @@ app.delete('/recipes/:id', authenticateToken, async (req, res) => {
 
 // ----------------------- PLANS ---------------------------
 app.post('/plans', authenticateToken, async (req, res) => {
-    console.log(req.body);
-
     const { title, startDate, endDate, days } = req.body;
     const userId = req.user.userId;
-
-    console.log(startDate);
 
     const client = await pool.connect();
 
@@ -332,6 +328,53 @@ app.post('/plans', authenticateToken, async (req, res) => {
     }
 });
 
+app.put('/plans/:id', authenticateToken, async (req, res) => {
+    const changedDays = req.body;
+    const userId = req.user.userId;
+    const planId = req.params.id;
+
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        for (const day of changedDays) {
+            // Get plan_day_id
+            const result = await client.query(
+                'SELECT id FROM plan_days WHERE plan_id = $1 AND date = $2',
+                [planId, day.date]
+            );
+            const planDayId = result.rows[0]?.id;
+            if (!planDayId) continue;
+
+            // Delete old meals
+            await client.query('DELETE FROM plan_meals WHERE plan_day_id = $1', [planDayId]);
+
+            // Update with new meals
+            const mealIds = day.meals.map(meal => meal.id);
+            if (mealIds.length === 0) continue;
+
+            const insertQuery = `
+                INSERT INTO plan_meals (plan_day_id, meal_id) VALUES 
+                ${mealIds.map((_, i) => `($1, $${i + 2})`).join(', ')};
+            `;
+
+            await client.query(insertQuery, [planDayId, ...mealIds]);
+        }
+
+        await client.query('COMMIT');
+        res.status(204).json(planId);
+    } catch (err) {
+        console.error(err);
+        await client.query('ROLLBACK');
+        res.status(500).send('Server error');
+    } finally {
+        // Jack Black reference
+        client.release();
+    }
+
+});
+
 app.get('/plans', authenticateToken, async (req, res) => {
     const userId = req.user.userId;
 
@@ -344,9 +387,9 @@ app.get('/plans', authenticateToken, async (req, res) => {
             [userId]);
 
         if (planResponse.rowCount === 0) return res.status(200).json([]);
-        
+
         const plans = planResponse.rows;
-        
+
         const planIds = plans.map(plan => plan.id);
         const mealsResponse = await pool.query(`
             SELECT p.id AS plan_id, m.id AS meal_id, m.name
@@ -357,7 +400,7 @@ app.get('/plans', authenticateToken, async (req, res) => {
             WHERE p.user_id = $1 AND p.id = ANY($2)
             ORDER BY pd.date ASC;
         `, [userId, planIds]);
-        
+
         const meals = mealsResponse.rows;
 
         const plansWithMeals = plans.map(plan => ({

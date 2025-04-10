@@ -22,9 +22,14 @@ const token = authStore.token;
 const availableMeals = ref([]);
 
 // Refs to track the current replacement context:
+const replaceModalRef = ref(null);
+let modalInstance = null;
+
 const currentDayDate = ref('');
 const currentMealIndex = ref(null);
 const selectedReplacementMealId = ref(null);
+
+const changedDays = ref([]);
 
 onMounted(async () => {
     try {
@@ -80,13 +85,6 @@ const generateShoppingList = () => {
     console.log(Object.values(ingredientMap));
 }
 
-const openMealDetails = (mealId) => {
-    router.push(`/meals/${mealId}`);
-}
-
-const replaceModalRef = ref(null);
-let modalInstance = null;
-
 // Open the modal for replacing a meal:
 const openReplaceModal = (dayDate, mealIndex) => {
     currentDayDate.value = dayDate;
@@ -120,9 +118,13 @@ const applyReplacementMeal = () => {
     if (dayIndex !== -1 && currentMealIndex.value !== null) {
         // Find the meal in availableMeals to ensure we have full meal details
         const newMeal = availableMeals.value.find(m => m.id === selectedReplacementMealId.value);
-        if (newMeal) {
+        if (newMeal && newMeal.id !== plan.value.days[dayIndex].meals[currentMealIndex.value].id) {
             // Replace the meal at the given index
             plan.value.days[dayIndex].meals.splice(currentMealIndex.value, 1, newMeal);
+            changedDays.value.push({
+                date: plan.value.days[dayIndex].date.split('T')[0],
+                meals: plan.value.days[dayIndex].meals
+            });
         }
     }
     closeReplaceModal();
@@ -130,14 +132,21 @@ const applyReplacementMeal = () => {
 
 // Save the updated plan to the backend
 const savePlanChanges = async () => {
+    errorMessage.value = '';
+
     try {
-        // You might send the updated plan object directly or just the changed parts.
-        await axios.put(`http://127.0.0.1:3000/plans/${plan.value.id}`, plan.value);
-        alert('Plan updated successfully!');
-        // Optionally refresh data or navigate as needed.
+        await axios.put(`http://127.0.0.1:3000/plans/${route.params.id}`, changedDays.value, {
+            headers: { 
+                Authorization: `Bearer ${token}`, 
+                'Content-Type': 'application/json'
+            }
+        });
+
+        changedDays.value = [];
+        router.push(`/plans/${route.params.id}`);
     } catch (err) {
         console.error(err);
-        alert('Failed to update the plan.');
+        errorMessage.value = 'Error updating plan. Please try again.';
     }
 };
 
@@ -162,6 +171,7 @@ const deletePlan = async () => {
 
 <template>
     <Navbar />
+    <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
     <div class="container mt-2" v-if="plan">
         <div class="row justify-content-between align-items-center">
             <div class="col">
@@ -205,8 +215,8 @@ const deletePlan = async () => {
         </div>
 
         <!-- Replacement Meal Selection Modal -->
-        <div class="modal fade" id="replaceMealModal" tabindex="-1" ref="replaceModalRef" aria-labelledby="replaceMealModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="replaceMealModal" tabindex="-1" ref="replaceModalRef"
+            aria-labelledby="replaceMealModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -233,9 +243,22 @@ const deletePlan = async () => {
     <div v-else class="container">
         <p>Loading plan details...</p>
     </div>
+    <Transition name="save">
+        <div class="sticky-bottom text-center bg-secondary py-2" style="--bs-bg-opacity: .5;" v-if="changedDays.length > 0">
+            <h6 class="fw-bold">You have unsaved changes.</h6>
+            <button class="btn btn-success" @click="savePlanChanges">Save changes</button>
+        </div>
+    </Transition>
     <Footer />
 </template>
 
 
 <style scoped>
+.save-enter-from, .save-leave-to {
+    opacity: 0;
+}
+
+.save-enter-active, .save-leave-active {
+    transition: opacity 0.1s ease-in-out;
+}
 </style>
