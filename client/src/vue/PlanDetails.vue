@@ -178,7 +178,7 @@ const deletePlan = async () => {
                 <h1 class="fw-bold">{{ plan.title }}</h1>
             </div>
             <div class="col">
-                <button class="btn btn-primary float-end" @click="generateShoppingList">Generate Shopping List</button>
+                <button class="btn btn-primary float-end mb-1" @click="generateShoppingList">Generate Shopping List</button>
                 <button class="btn btn-danger float-end me-1" data-bs-toggle="modal"
                     data-bs-target="#exampleModal">Delete Plan</button>
             </div>

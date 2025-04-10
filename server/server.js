@@ -194,6 +194,10 @@ app.get('/recipes', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/recipes/search', authenticateToken, (req, res) => {
+    res.status(204).send('Not implemented');
+});
+
 // GET a specific recipe
 app.get('/recipes/:id', async (req, res) => {
     try {
@@ -413,7 +417,43 @@ app.get('/plans', authenticateToken, async (req, res) => {
         console.error(err);
         res.status(500).send('Server error');
     }
-})
+});
+
+app.get('/plans/search', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+    const { q } = req.query;
+
+    try {
+        const result = await pool.query('SELECT * FROM plans WHERE user_id = $1 AND LOWER(title) ILIKE LOWER($2)', [userId, `%${q}%`]);
+
+        if (result.rowCount === 0) return res.status(200).json([]);
+
+        const plans = result.rows;
+
+        const planIds = plans.map(plan => plan.id);
+        const mealsResponse = await pool.query(`
+            SELECT p.id AS plan_id, m.id AS meal_id, m.name
+            FROM plans p
+            JOIN plan_days pd ON p.id = pd.plan_id
+            JOIN plan_meals pm ON pd.id = pm.plan_day_id
+            JOIN recipes m ON pm.meal_id = m.id
+            WHERE p.user_id = $1 AND p.id = ANY($2)
+            ORDER BY pd.date ASC;
+        `, [userId, planIds]);
+
+        const meals = mealsResponse.rows;
+
+        const plansWithMeals = plans.map(plan => ({
+            ...plan,
+            meals: meals.filter(meal => meal.plan_id === plan.id)
+        }));
+
+        res.status(200).json(plansWithMeals);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
 
 app.get('/plans/:id', authenticateToken, async (req, res) => {
     const userId = req.user.userId;
