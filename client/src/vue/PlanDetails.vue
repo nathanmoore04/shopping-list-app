@@ -117,15 +117,12 @@ const applyReplacementMeal = () => {
     // Find the day object for the given date
     const dayIndex = plan.value.days.findIndex(d => d.date === currentDayDate.value);
 
-    console.log(currentMealIndex.value);
-
-    if (dayIndex && currentMealIndex.value !== null) {
+    if (dayIndex !== -1 && currentMealIndex.value !== null) {
         // Find the meal in availableMeals to ensure we have full meal details
         const newMeal = availableMeals.value.find(m => m.id === selectedReplacementMealId.value);
         if (newMeal) {
             // Replace the meal at the given index
             plan.value.days[dayIndex].meals.splice(currentMealIndex.value, 1, newMeal);
-            console.log(plan.value.days);
         }
     }
     closeReplaceModal();
@@ -165,7 +162,7 @@ const deletePlan = async () => {
 
 <template>
     <Navbar />
-    <div class="container" v-if="plan">
+    <div class="container mt-2" v-if="plan">
         <div class="row justify-content-between align-items-center">
             <div class="col">
                 <h1 class="fw-bold">{{ plan.title }}</h1>
