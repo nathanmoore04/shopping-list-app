@@ -49,6 +49,8 @@ const fetchResults = async () => {
             headers: { Authorization: `Bearer ${token}` }
         });
 
+        meals.value = response.data;
+
         searched.value = true;
     } catch (err) {
         errorMessage.value = 'Error searching plans. Please try again.';
@@ -71,24 +73,21 @@ const fetchResults = async () => {
                         <input v-model="searchQuery" type="search" class="form-control"
                             placeholder="Search meals by title or tags..." 
                             style="min-width: 60%;"/>
-                        <select v-model="selectedTag" class="form-select">
-                            <option value="" selected>All Tags</option>
-                            <option v-for="tag in tags" :key="tag" :value="tag">{{ tag }}</option>
-                        </select>
                         <button class="btn btn-primary" @click="fetchResults"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
             </div>
             <div class="col-12 col-md-2">
                 <RouterLink class="btn btn-outline-primary float-end" to="/plans/create">
-                    Create new plan <i class="bi bi-arrow-right"></i>
+                    Create new meal <i class="bi bi-arrow-right"></i>
                 </RouterLink>
             </div>
         </div>
         <div v-if="meals.length > 0" class="row align-items-start mt-2">
             <MealCard v-for="meal in meals" :key="meal.id" :meal="meal" />
         </div>
-        <p v-else>No meals to display. Why not create one?</p>
+        <p v-if="!searched && meals.length === 0">No meals to display. Why not create one?</p>
+        <p v-if="searched && meals.length === 0">No meals match your search query.</p>
     </div>
 
     <Footer />

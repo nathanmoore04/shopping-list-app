@@ -1,4 +1,3 @@
-// Imports
 const express = require('express');
 const { Pool } = require('pg');
 require('dotenv').config();
@@ -194,8 +193,29 @@ app.get('/recipes', authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/recipes/search', authenticateToken, (req, res) => {
-    res.status(204).send('Not implemented');
+app.get('/recipes/search', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+    const { q } = req.query;
+
+    try {
+        const result = await pool.query(`
+            SELECT * FROM recipes
+            WHERE user_id = $1
+            AND (
+                LOWER(name) ILIKE LOWER($2)
+                OR EXISTS(
+                    SELECT 1
+                    FROM UNNEST(tags) AS tag
+                    WHERE LOWER(tag) ILIKE LOWER($2)
+                )
+            )
+        `, [userId, `%${q}%`]);
+
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
 });
 
 // GET a specific recipe
