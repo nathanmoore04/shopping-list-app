@@ -16,7 +16,7 @@ const handleLogout = () => {
 <template>
   <nav class="navbar navbar-expand-sm navbar-light bg-light-subtle sticky-top">
     <div class="container-lg">
-      <RouterLink class="navbar-brand" to="/">MealPlanner</RouterLink>
+      <RouterLink class="navbar-brand" to="/"><img src="../assets/smart_meal_logo_transparent.png" class="navbar-logo"></RouterLink>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -55,5 +55,12 @@ const handleLogout = () => {
 
 .nav-link {
     position: relative;
+}
+
+.navbar-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 </style>

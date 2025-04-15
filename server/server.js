@@ -31,13 +31,29 @@ pool.query('SELECT NOW()', (err, res) => {
     }
 });
 
-// ----- App stuff ------
+const allowedOrigins = [
+    'http://localhost:8080',
+    'http://10.5.0.2:8080',
+    'http://10.36.33.166:8080'
+];
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (allowedOrigins.includes(origin)) callback(null, true);
+        else callback(new Error('CORS policy violation: Origin not allowed'))
+    },
+    credentials: true
+}
+
+app.use(cors(corsOptions));
+
+/* // ----- App stuff ------
 app.use(cors({
     origin: 'http://localhost:8080', // Allow frontend domain
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
-}));
+})); */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

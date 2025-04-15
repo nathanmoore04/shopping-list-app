@@ -4,6 +4,7 @@ import router from '@/router';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap'
 import '../node_modules/bootstrap-icons/font/bootstrap-icons.min.css';
+import '@/assets/main.scss';
 import { createPinia } from 'pinia';
 
 const pinia = createPinia();
