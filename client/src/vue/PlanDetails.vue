@@ -83,7 +83,7 @@ const generateShoppingList = () => {
         });
     });
 
-    emit('list', ingredientMap);
+    emit('list', ingredientMap, plan.value.title);
 }
 
 // Open the modal for replacing a meal:

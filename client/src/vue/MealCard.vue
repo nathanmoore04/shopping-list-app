@@ -47,4 +47,13 @@ const viewMeal = () => {
 .card:hover {
     transform: scale(1.02);
 }
+
+.badge {
+  background-color: #444;
+  color: #eee;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 1rem;
+  margin-right: 0.25rem;
+}
 </style>

@@ -33,10 +33,8 @@ function applyTheme() {
     <div class="form-check form-switch">
         <input @click="toggleDarkMode" class="form-check-input" type="checkbox" :checked="isDarkMode" role="switch" id="switcher">
         <label class="form-check-label" for="switcher">
-            <Transition>
-                <i v-if="!isDarkMode" class="bi bi-sun" alt="Light mode"></i>
-                <i v-else class="bi bi-moon" alt="Dark mode"></i>
-            </Transition>
+            <i v-if="!isDarkMode" class="bi bi-sun" alt="Light mode"></i>
+            <i v-else class="bi bi-moon" alt="Dark mode"></i>
         </label>
     </div>
 </template>

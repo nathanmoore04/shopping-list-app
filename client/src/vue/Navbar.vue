@@ -46,7 +46,7 @@ const handleLogout = () => {
 <style scoped>
 .navbar {
     box-shadow: 0;
-    transition: box-shadow 0.3s ease-in-out;
+    transition: box-shadow 0.3s ease-in-out, background-color 0.3s ease, color 0.3s ease;
 }
 
 .navbar:hover {
@@ -58,9 +58,13 @@ const handleLogout = () => {
 }
 
 .navbar-logo {
-  height: 40px;
+  height: 36px;
   width: auto;
   object-fit: contain;
   display: block;
+}
+
+.nav-link:hover {
+  color: #2C8D44;
 }
 </style>

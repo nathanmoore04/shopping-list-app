@@ -9,6 +9,9 @@ import PlanCard from './PlanCard.vue';
 
 const authStore = useAuthStore();
 
+const showMotd = ref(false);
+const motdBackground = ref('');
+
 const errorMessage = ref('');
 const meals = ref([]);
 const plans = ref([]);
@@ -24,18 +27,9 @@ const randomMessages = [
     "A well-planned meal is half the work done. Keep up the great work!",
     "Good food brings people together—what’s on your table this week?",
     "Meal planning today means stress-free dining all week long!",
-    "Meal planning means fewer last-minute pizza orders… unless that’s the plan!",
-    "Avocado toast wasn’t built in a day—great meals start with a plan!",
     "Your future self will thank you for today’s meal planning efforts!",
-    "A good meal plan is like a good book—full of surprises and great stories!",
-    "One meal at a time, you’re building a healthier and happier lifestyle!",
     "No more 'What’s for dinner?' panic—your plan has it covered!",
-    "Smart meal planning = less waste and more savings. Win-win!",
-    "A well-planned grocery list means fewer impulse buys—your wallet will thank you!",
     "Plan your meals, shop with purpose, and enjoy stress-free cooking!",
-    "Every meal you plan helps reduce food waste and saves time!",
-    "Cooking at home isn’t just healthier—it’s a creative adventure!",
-    "AI-generated slop goes here."
 ];
 
 const greeting = ref('');
@@ -62,14 +56,22 @@ const getMOTD = () => {
 const getGreeting = () => {
     const d = new Date();
 
-    if (d.getHours() < 11) greeting.value = "Good morning";
-    else if (d.getHours() < 17) greeting.value = "Good afternoon";
-    else greeting.value = "Good evening";
+    if (d.getHours() < 11) {
+        greeting.value = "Good morning";
+        motdBackground.value = 'images/background-4.jpg';
+    } else if (d.getHours() < 17) {
+        greeting.value = "Good afternoon";
+        motdBackground.value = 'images/background-1.jpg';
+    } else {
+        greeting.value = "Good evening";
+        motdBackground.value = 'images/background-3.jpg';
+    }
 };
 
 onMounted(async () => {
     const token = authStore.token;
     errorMessage.value = '';
+    showMotd.value = true;
 
     if (authStore.userName) userName.value = authStore.userName;
 
@@ -102,70 +104,97 @@ onMounted(async () => {
 </script>
 
 <template>
-    <Navbar />
     <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
-    <div class="container text-center py-5">
-        <h1 class="fw-bold">{{ greeting }}<span v-if="userName">, {{ userName }}!</span><span v-else>!</span>
-        </h1>
-        <h3 class="fw-light">{{ motd }}</h3>
-        <div class="row justify-content-center mt-3">
-            <div class="col col-md-3">
-                <RouterLink class="btn btn-outline-primary btn float-end" to="/meals/create">Create a new meal
-                </RouterLink>
-            </div>
-            <div class="col col-md-3">
-                <RouterLink class="btn btn-primary btn float-start" to="/plans/create">Create a new plan</RouterLink>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        <div class="row mt-2 justify-content-between align-items-center">
-            <div class="col-3">
-                <h3 class="fw-bold">Dashboard</h3>
-            </div>
-            <!-- <div class="col-8 col-md-4">
-                <form class="d-flex pt-2" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search by keyword or #tags..."
-                        aria-label="Search">
-                    <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
-                </form>
-            </div> -->
-        </div>
-
-        <div class="row mt-2">
-            <div class="col-8">
-                <h4 class="fw-bold">Your recent meals</h4>
-            </div>
-            <div class="col">
-                <RouterLink class="btn btn-outline-primary float-end" to="/meals">
-                    See all meals <i class="bi bi-arrow-right"></i>
-                </RouterLink>
+    <Transition name="fade-slide-in">
+        <div v-if="showMotd" class="text-center motd" :style="{
+            backgroundImage: `url(${motdBackground})`
+        }">
+            <div class="motd-overlay py-5 text-light">
+                <h1 class="fw-bold">{{ greeting }}<span v-if="userName">, {{ userName }}</span>!
+                </h1>
+                <h3>{{ motd }}</h3>
+                <div class="row justify-content-center mt-3">
+                    <div class="col col-md-3">
+                        <RouterLink class="btn btn-outline-primary btn float-end text-light" to="/meals/create">Create a new meal
+                        </RouterLink>
+                    </div>
+                    <div class="col col-md-3">
+                        <RouterLink class="btn btn-primary btn float-start" to="/plans/create">Create a new plan
+                        </RouterLink>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div v-if="meals.length > 0" class="row align-items-start mt-2">
-            <MealCard v-for="meal in meals" :key="meal.id" :meal="meal" />
-        </div>
-        <p v-else>No meals to display.</p>
-
-        <div class="row mt-2">
-            <div class="col">
-                <h4 class="fw-bold">Your recent plans</h4>
+    </Transition>
+    <Transition name="fade">
+        <div v-if="showMotd" class="container">
+            <div class="row mt-3 justify-content-between align-items-center">
+                <div class="col-3">
+                    <h3 class="fw-bold">Dashboard</h3>
+                </div>
             </div>
-            <div class="col">
-                <RouterLink class="btn btn-outline-primary float-end" to="/plans">
-                    See all plans <i class="bi bi-arrow-right"></i>
-                </RouterLink>
+            <div class="row mt-2">
+                <div class="col-8">
+                    <h4 class="fw-bold">Your recent meals</h4>
+                </div>
+                <div class="col">
+                    <RouterLink class="btn btn-outline-primary float-end" to="/meals">
+                        See all meals <i class="bi bi-arrow-right"></i>
+                    </RouterLink>
+                </div>
             </div>
+            <div v-if="meals.length > 0" class="row align-items-start mt-2">
+                <MealCard v-for="(meal, index) in meals" :key="meal.id" :meal="meal" />
+            </div>
+            <p v-else>No meals to display.</p>
+            <div class="row mt-2">
+                <div class="col">
+                    <h4 class="fw-bold">Your recent plans</h4>
+                </div>
+                <div class="col">
+                    <RouterLink class="btn btn-outline-primary float-end" to="/plans">
+                        See all plans <i class="bi bi-arrow-right"></i>
+                    </RouterLink>
+                </div>
+            </div>
+            <div v-if="plans.length > 0" class="row align-items-start mt-2">
+                <PlanCard v-for="plan in plans" :key="plan.id" :plan="plan" />
+            </div>
+            <p v-else>No plans to display.</p>
         </div>
-
-        <div v-if="plans.length > 0" class="row align-items-start mt-2">
-            <PlanCard v-for="plan in plans" :key="plan.id" :plan="plan" />
-        </div>
-        <p v-else>No plans to display.</p>
-
-    </div>
-    <Footer />
+    </Transition>
 </template>
 
-<style scoped></style>
+<style scoped>
+.motd {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.motd-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    /* adjustable darkness */
+    padding: 1.5rem 2rem;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
+.fade-slide-in-enter-from {
+    opacity: 0;
+    transform: translateX(-20px)
+}
+
+.fade-slide-in-enter-active {
+    transition: all 0.6s ease;
+}
+
+.fade-enter-from {
+    opacity: 0;
+}
+
+.fade-enter-to {
+    transition: all 1s ease;
+}
+</style>

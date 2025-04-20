@@ -26,7 +26,6 @@ const handleLogin = async (userData) => {
 </script>
 
 <template>
-    <Navbar />
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-sm-6 col-md-4 col-12 container mt-5">
@@ -35,7 +34,6 @@ const handleLogin = async (userData) => {
             </div>
         </div>
     </div>
-    <Footer />
 </template>
 
 <style scoped>

@@ -5,7 +5,5 @@ import Footer from './Footer.vue';
 </script>
 
 <template>
-<Navbar />
 <CreateMealForm />
-<Footer />
 </template>

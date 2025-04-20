@@ -1,8 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import Navbar from './Navbar.vue';
-import Footer from './Footer.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 
@@ -56,7 +54,6 @@ const deleteUser = async () => {
 </script>
 
 <template>
-<Navbar />
 <div class="container-lg mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-12">
@@ -75,14 +72,13 @@ const deleteUser = async () => {
                     <button class="btn btn-success w-100 mb-2" @click="updateInfo">Update info</button>
                 </div>
                 <div class="col-12 col-md-6">
-                    <button class="btn btn-outline-danger w-100" @click="deleteUser">Delete account</button>
+                    <button class="btn btn-outline-danger w-100 mb-2" @click="deleteUser">Delete account</button>
                 </div>
             </div>
             <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
         </div>
     </div>
 </div>
-<Footer />
 </template>
 
 <style scoped>

@@ -60,7 +60,6 @@ const fetchResults = async () => {
 </script>
 
 <template>
-    <Navbar />
     <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
     <div class="container">
         <div class="row mt-2 justify-content-between align-items-center">
@@ -83,14 +82,22 @@ const fetchResults = async () => {
                 </RouterLink>
             </div>
         </div>
-        <div v-if="meals.length > 0" class="row align-items-start mt-2">
-            <MealCard v-for="meal in meals" :key="meal.id" :meal="meal" />
-        </div>
+        <Transition name="fade">
+            <div v-if="meals.length > 0" class="row align-items-start mt-2">
+                <MealCard v-for="meal in meals" :key="meal.id" :meal="meal" />
+            </div>
+        </Transition>
         <p v-if="!searched && meals.length === 0">No meals to display. Why not create one?</p>
         <p v-if="searched && meals.length === 0">No meals match your search query.</p>
     </div>
-
-    <Footer />
 </template>
 
-<style scoped></style>
+<style scoped>
+.fade-enter-from {
+    opacity: 0;
+}
+
+.fade-enter-to {
+    transition: all 0.6s ease;
+}
+</style>

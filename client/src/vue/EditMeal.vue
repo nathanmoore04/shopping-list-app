@@ -143,7 +143,6 @@ const submitMeal = async () => {
 </script>
 
 <template>
-    <Navbar />
     <div class="container-lg mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-12">
@@ -225,5 +224,4 @@ const submitMeal = async () => {
             </div>
         </div>
     </div>
-    <Footer />
 </template>

@@ -1,10 +1,16 @@
 // main.scss
 
-$body-bg: #1e1e1e;
-$body-color: #f5f5f5;
 $primary: #2C8D44;
-$border-radius: 0.75rem;
-$card-bg: #2a2a2a;
+$border-radius: 0.6rem;
+
+[data-bs-theme="dark"] .card {
+    background-color: #2a2a2a;
+}
+
+[data-bs-theme="light"] .card {
+    background-color: rgba($color: #2a2a2a, $alpha: 0.1);
+}
+
 $card-border-color: #393939;
 
 @import "bootstrap/scss/bootstrap";

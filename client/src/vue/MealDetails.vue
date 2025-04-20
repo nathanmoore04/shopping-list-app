@@ -52,7 +52,6 @@ const deleteMeal = async () => {
 </script>
 
 <template>
-    <Navbar />
     <div class="container">
         <div class="row mt-3">
             <div class="container col col-md-8" v-if="meal">
