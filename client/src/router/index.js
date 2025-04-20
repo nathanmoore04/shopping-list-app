@@ -16,59 +16,104 @@ import PlanDetailsParent from '@/vue/PlanDetailsParent.vue';
 
 // Map Vue components to URLs
 const routes = [
-  { path: '/', component: HomePage },
-  { path: '/login', component: LoginPage },
-  { path: '/signup', component: SignupPage },
+  { 
+    path: '/', 
+    component: HomePage
+  },
+  { 
+    path: '/login', 
+    component: LoginPage,
+    meta: {
+      title: 'SmartMeal — Login'
+    }
+  },
+  { 
+    path: '/signup', 
+    component: SignupPage,
+    meta: {
+      title: 'SmartMeal — Sign Up'
+    }
+  },
   {
     path: '/dashboard', 
     component: DashboardPage,
     // Protected route
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Dashboard'
+    }
   },
   {
     path: '/meals/create',
     component: CreateMealPage,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Create Meal'
+    }
   },
   {
     path: '/meals/:id',
     component: MealDetails,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Meal Details'
+    }
   },
   {
     path: '/meals/edit/:id',
     component: EditMeal,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Edit Meal'
+    }
   },
   {
     path: '/plans/create',
     component: CreatePlan,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Create Plan'
+    }
   },
   {
     path: '/plans/:id',
     component: PlanDetailsParent,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Plan Details'
+    }
   },
   {
     path: '/meals',
     component: Meals,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Meals'
+    }
   },
   {
     path: '/plans',
     component: Plans,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Plans'
+    }
   },
   {
     path: '/plans/edit/:id',
     component: EditPlan,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Edit Plan'
+    }
   },
   {
     path: '/account',
     component: Account,
-    meta: { requiresAuth: true }
+    meta: { 
+      requiresAuth: true,
+      title: 'SmartMeal — Account'
+    }
   }
 ];
 
@@ -84,6 +129,11 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.requiresAuth && !isAuthenticated) next('/login');
   else next();
+});
+
+router.afterEach((to) => {
+  const defaultTitle = 'SmartMeal';
+  document.title = to.meta.title || defaultTitle;
 });
 
 export default router;
