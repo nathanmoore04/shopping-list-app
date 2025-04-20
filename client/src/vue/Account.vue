@@ -12,6 +12,8 @@ const name = ref(authStore.userName);
 const errorMessage = ref('');
 const successMessage = ref('');
 
+const dialogAllowed = ref(true);
+
 const token = authStore.token;
 
 const updateInfo = async () => {
@@ -54,33 +56,48 @@ const deleteUser = async () => {
 </script>
 
 <template>
-<div class="container-lg mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-12">
-            <h3 class="fw-bold">Account details</h3>
-            <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
-            <div class="mb-3">
-                <label for="title" class="mb-1">Email address</label>
-                <input type="text" class="form-control" v-model="email" disabled>
-            </div>
-            <div class="mb-3">
-                <label for="title" class="mb-1">First name</label>
-                <input type="text" class="form-control" v-model="name">
-            </div>
-            <div class="row mb-3 align-items-center">
-                <div class="col-12 col-md-6">
-                    <button class="btn btn-success w-100 mb-2" @click="updateInfo">Update info</button>
-                </div>
-                <div class="col-12 col-md-6">
-                    <button class="btn btn-outline-danger w-100 mb-2" @click="deleteUser">Delete account</button>
+    <div class="container-lg mt-5">
+        <div class="modal fade" id="exampleModal" tabindex="-1" v-if="dialogAllowed">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Heads up!</h1>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete your account? This will also delete all of your meals and plans, and can't be undone!
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                            @click="deleteUser">Confirm</button>
+                    </div>
                 </div>
             </div>
-            <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-12">
+                <h3 class="fw-bold">Account details</h3>
+                <p class="text-danger" v-if="errorMessage">{{ errorMessage }}</p>
+                <div class="mb-3">
+                    <label for="title" class="mb-1">Email address</label>
+                    <input type="text" class="form-control" v-model="email" disabled>
+                </div>
+                <div class="mb-3">
+                    <label for="title" class="mb-1">First name</label>
+                    <input type="text" class="form-control" v-model="name">
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <div class="col-12 col-md-6">
+                        <button class="btn btn-success w-100 mb-2" @click="updateInfo">Update info</button>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <button class="btn btn-outline-danger w-100 mb-2" data-bs-toggle="modal" data-bs-target="#exampleModal">Delete account</button>
+                    </div>
+                </div>
+                <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
+            </div>
         </div>
     </div>
-</div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
