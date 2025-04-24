@@ -77,7 +77,7 @@ const fetchResults = async () => {
                 </form>
             </div>
             <div class="col-12 col-md-2">
-                <RouterLink class="btn btn-outline-primary float-end" to="/plans/create">
+                <RouterLink class="btn btn-outline-primary float-end" to="/meals/create">
                     Create new meal <i class="bi bi-arrow-right"></i>
                 </RouterLink>
             </div>

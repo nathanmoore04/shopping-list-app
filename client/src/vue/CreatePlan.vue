@@ -71,7 +71,7 @@ const numDays = computed(() => {
 });
 
 const numMeals = computed(() => {
-    return (numDays.value - excludedDates.value.length) * mealsPerDay.value;
+    return numDays.value * mealsPerDay.value;
 });
 
 const addExcludedDate = () => {
@@ -92,8 +92,7 @@ const chooseMeal = () => {
 
     while (!validMeal) {
         meal = meals.value[Math.floor(Math.random() * meals.value.length)]
-        if (meal.id in excludedMealsIds.value) continue;
-        validMeal = true;
+        if (!excludedMealsIds.value.find(id => id === meal.id)) validMeal = true;
     }
 
     return meal;
@@ -205,6 +204,17 @@ const submitPlan = async () => {
     }
 };
 
+const parseDate = (dateString) => {
+    const shortenedDateString = dateString.split('T')[0];
+    const dateComponents = shortenedDateString.split('-');
+
+    const day = dateComponents[2].replace(/^0+/, '');
+    const month = dateComponents[1].replace(/^0+/, '');
+    const year = dateComponents[0];
+
+    return month + '/' + day + '/' + year;
+}
+
 </script>
 
 <template>
@@ -263,7 +273,7 @@ const submitPlan = async () => {
                         <ul class="list-group">
                             <li v-for="(date, index) in excludedDates" :key="index"
                                 class="list-group-item d-flex justify-content-between align-items-center border-0">
-                                {{ date }}
+                                {{ parseDate(date) }}
                                 <div @click="removeExcludedDate(index)" style="cursor: pointer;">
                                     <i class="bi bi-x text-danger"></i>
                                 </div>

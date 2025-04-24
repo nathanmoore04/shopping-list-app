@@ -17,4 +17,10 @@ import Footer from './Footer.vue';
 .app {
   transition: all 0.3s;
 }
+
+@media print {
+  nav, footer {
+    display: none !important;  
+  }
+}
 </style>

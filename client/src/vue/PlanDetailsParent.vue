@@ -7,9 +7,9 @@ import { ref } from 'vue';
 const ingredients = ref({});
 const title = ref('');
 
-const displayList = (ingredientMap, title) => {
-  ingredients.value = ingredientMap;
-  title.value = title;
+const displayList = (args) => {
+  ingredients.value = args[0];
+  title.value = args[1];
 };
 
 const printShoppingList = () => {
