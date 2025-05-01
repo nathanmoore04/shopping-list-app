@@ -7,3 +7,16 @@ SmartMeal is your personal meal planner, recipe organizer, and shopping list gen
 - Create a meal plan using your recipes. You choose how long to plan for, how many meals per day, days to take off from cooking, and recipes to include or exclude from the plan
 - Easily modify your generated plan, and create a print-friendly shopping list
 - ...and more to come!
+
+## Gallery
+![The hero page](/gallery/hero.png)
+
+![The dashboard page](/gallery/dashboard.png)
+
+![Meals page](/gallery/meals.png)
+
+![Meal details page](/gallery/meal_details.png)
+
+![Plan creation page](/gallery/create_plan.png)
+
+*Created as a senior capstone project at Berry College by Nathan Moore in 2025*
