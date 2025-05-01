@@ -2,8 +2,6 @@
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import axios from 'axios';
-import Navbar from './Navbar.vue';
-import Footer from './Footer.vue';
 import MealCard from './MealCard.vue';
 import PlanCard from './PlanCard.vue';
 

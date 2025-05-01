@@ -243,9 +243,6 @@ app.get('/recipes/:id', async (req, res) => {
 
         const meal = result.rows[0];
 
-        // Convert PostgreSQL array string to actual JSON arrays
-        //meal.ingredients = JSON.parse(meal.ingredients); // Fix here!
-
         res.status(200).json(meal);
     } catch (err) {
         console.error(err.stack);
